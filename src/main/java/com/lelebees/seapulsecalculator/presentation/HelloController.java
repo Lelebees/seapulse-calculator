@@ -1,4 +1,4 @@
-package com.lelebees.seapulsecalculator;
+package com.lelebees.seapulsecalculator.presentation;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

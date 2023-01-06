@@ -1,4 +1,4 @@
-package com.lelebees.seapulsecalculator;
+package com.lelebees.seapulsecalculator.presentation;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

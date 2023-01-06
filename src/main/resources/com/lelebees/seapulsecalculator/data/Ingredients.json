@@ -1,0 +1,450 @@
+[
+  {
+    "name": "almonds",
+    "value": 4
+  },
+  {
+    "name": "apple",
+    "value": 5
+  },
+  {
+    "name": "applejuice",
+    "value": 5
+  },
+  {
+    "name": "artichoke",
+    "value": 5
+  },
+  {
+    "name": "asparagus",
+    "value": 5
+  },
+  {
+    "name": "bagel",
+    "value": 7
+  },
+  {
+    "name": "bakedbeans",
+    "value": 9
+  },
+  {
+    "name": "bakedpotato",
+    "value": 7
+  },
+  {
+    "name": "banana",
+    "value": 6
+  },
+  {
+    "name": "blueberries",
+    "value": 5
+  },
+  {
+    "name": "bluecheesecake",
+    "value": 7
+  },
+  {
+    "name": "bottledwater",
+    "value": 4
+  },
+  {
+    "name": "bread",
+    "value": 7
+  },
+  {
+    "name": "broccoli",
+    "value": 5
+  },
+  {
+    "name": "burger",
+    "value": 12
+  },
+  {
+    "name": "cake",
+    "value": 6
+  },
+  {
+    "name": "candyapple",
+    "value": 6
+  },
+  {
+    "name": "cantaloupe",
+    "value": 8
+  },
+  {
+    "name": "carrotcake",
+    "value": 25
+  },
+  {
+    "name": "carrots",
+    "value": 5
+  },
+  {
+    "name": "cheese",
+    "value": 7
+  },
+  {
+    "name": "cherries",
+    "value": 6
+  },
+  {
+    "name": "cherrypie",
+    "value": 10
+  },
+  {
+    "name": "chickensoup",
+    "value": 6
+  },
+  {
+    "name": "chickennugs",
+    "value": 13
+  },
+  {
+    "name": "chocolatebar",
+    "value": 5
+  },
+  {
+    "name": "chocmilk",
+    "value": 6
+  },
+  {
+    "name": "chocmilkshake",
+    "value": 5
+  },
+  {
+    "name": "chocpudding",
+    "value": 5
+  },
+  {
+    "name": "coconut",
+    "value": 7
+  },
+  {
+    "name": "cola",
+    "value": 4
+  },
+  {
+    "name": "cookies",
+    "value": 7
+  },
+  {
+    "name": "corndog",
+    "value": 15
+  },
+  {
+    "name": "cornflakes",
+    "value": 7
+  },
+  {
+    "name": "corncob",
+    "value": 15
+  },
+  {
+    "name": "creampuff",
+    "value": 5
+  },
+  {
+    "name": "creamsoda",
+    "value": 4
+  },
+  {
+    "name": "croissant",
+    "value": 7
+  },
+  {
+    "name": "cupcake",
+    "value": 4
+  },
+  {
+    "name": "dochocbrownie",
+    "value": 10
+  },
+  {
+    "name": "dragon fruit",
+    "value": 9
+  },
+  {
+    "name": "durian",
+    "value": 6
+  },
+  {
+    "name": "eggs",
+    "value": 6
+  },
+  {
+    "name": "fishsticks",
+    "value": 12
+  },
+  {
+    "name": "frenchfries",
+    "value": 5
+  },
+  {
+    "name": "fruitpunch",
+    "value": 5
+  },
+  {
+    "name": "fudge",
+    "value": 7
+  },
+  {
+    "name": "gingerale",
+    "value": 5
+  },
+  {
+    "name": "granola",
+    "value": 8
+  },
+  {
+    "name": "grapefruit",
+    "value": 5
+  },
+  {
+    "name": "greenbellpepper",
+    "value": 7
+  },
+  {
+    "name": "greengrapes",
+    "value": 6
+  },
+  {
+    "name": "greenonion",
+    "value": 4
+  },
+  {
+    "name": "honey",
+    "value": 7
+  },
+  {
+    "name": "hotchoc",
+    "value": 5
+  },
+  {
+    "name": "hotdog",
+    "value": 10
+  },
+  {
+    "name": "icecreamcone",
+    "value": 5
+  },
+  {
+    "name": "icetea",
+    "value": 5
+  },
+  {
+    "name": "jelly",
+    "value": 5
+  },
+  {
+    "name": "kinzicepops",
+    "value": 4
+  },
+  {
+    "name": "kiwi",
+    "value": 6
+  },
+  {
+    "name": "lemonpie",
+    "value": 7
+  },
+  {
+    "name": "licorice",
+    "value": 4
+  },
+  {
+    "name": "lollipop",
+    "value": 4
+  },
+  {
+    "name": "macncheese",
+    "value": 10
+  },
+  {
+    "name": "marshmallows",
+    "value": 4
+  },
+  {
+    "name": "milk",
+    "value": 5
+  },
+  {
+    "name": "mushrooms",
+    "value": 4
+  },
+  {
+    "name": "nachochips",
+    "value": 8
+  },
+  {
+    "name": "oatmeal",
+    "value": 4
+  },
+  {
+    "name": "orange",
+    "value": 5
+  },
+  {
+    "name": "orangejuice",
+    "value": 5
+  },
+  {
+    "name": "orangepop",
+    "value": 4
+  },
+  {
+    "name": "pancakes",
+    "value": 10
+  },
+  {
+    "name": "papaya",
+    "value": 7
+  },
+  {
+    "name": "peach",
+    "value": 4
+  },
+  {
+    "name": "peanuts",
+    "value": 5
+  },
+  {
+    "name": "pear",
+    "value": 4
+  },
+  {
+    "name": "peppermint",
+    "value": 5
+  },
+  {
+    "name": "pickle",
+    "value": 6
+  },
+  {
+    "name": "pineapple",
+    "value": 6
+  },
+  {
+    "name": "pinklemonade",
+    "value": 4
+  },
+  {
+    "name": "pizza",
+    "value": 9
+  },
+  {
+    "name": "popcorn",
+    "value": 5
+  },
+  {
+    "name": "potatochips",
+    "value": 4
+  },
+  {
+    "name": "pretzel",
+    "value": 4
+  },
+  {
+    "name": "pumpkin",
+    "value": 5
+  },
+  {
+    "name": "radish",
+    "value": 4
+  },
+  {
+    "name": "raisins",
+    "value": 7
+  },
+  {
+    "name": "ramen",
+    "value": 10
+  },
+  {
+    "name": "raspberries",
+    "value": 6
+  },
+  {
+    "name": "rootbeer",
+    "value": 5
+  },
+  {
+    "name": "salad",
+    "value": 7
+  },
+  {
+    "name": "shrimp",
+    "value": 11
+  },
+  {
+    "name": "spaghetti",
+    "value": 16
+  },
+  {
+    "name": "spinach",
+    "value": 6
+  },
+  {
+    "name": "strawberries",
+    "value": 6
+  },
+  {
+    "name": "strawyogurt",
+    "value": 7
+  },
+  {
+    "name": "sunflowerseeds",
+    "value": 4
+  },
+  {
+    "name": "supertoothbuster",
+    "value": 10
+  },
+  {
+    "name": "sushi",
+    "value": 15
+  },
+  {
+    "name": "tacos",
+    "value": 11
+  },
+  {
+    "name": "toasterpastry",
+    "value": 8
+  },
+  {
+    "name": "toffee",
+    "value": 5
+  },
+  {
+    "name": "tomato",
+    "value": 5
+  },
+  {
+    "name": "tomatosoup",
+    "value": 5
+  },
+  {
+    "name": "vitamins",
+    "value": 5
+  },
+  {
+    "name": "waffles",
+    "value": 10
+  },
+  {
+    "name": "watermelon",
+    "value": 10
+  },
+  {
+    "name": "webkinzcrackers",
+    "value": 9
+  },
+  {
+    "name": "whiterice",
+    "value": 5
+  },
+  {
+    "name": "yam",
+    "value": 5
+  }
+]
