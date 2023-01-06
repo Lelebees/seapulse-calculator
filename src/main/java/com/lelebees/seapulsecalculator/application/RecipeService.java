@@ -73,6 +73,7 @@ public class RecipeService {
                 iteration +=1;
                 System.out.print("\r");
                 System.out.print(iteration+"/"+totalResults);
+                // Run garbage collection every 1 million calcs
                 if (iteration % 1000000 == 0) {
                     System.gc();
                 }
