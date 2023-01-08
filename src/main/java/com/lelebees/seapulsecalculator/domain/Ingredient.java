@@ -42,7 +42,7 @@ public final class Ingredient {
 
     @Override
     public String toString() {
-        return "name: "+name + "; value: " + value;
+        return name + ";" + value;
     }
 
 }

@@ -1,8 +1,8 @@
 package com.lelebees.seapulsecalculator.application;
 
-import com.google.common.math.BigIntegerMath;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
 import com.lelebees.seapulsecalculator.domain.Recipe;
+import com.lelebees.seapulsecalculator.presentation.CalculatorView;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -11,7 +11,17 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeService {
+public class RecipeService extends Thread {
+    private final List<Ingredient> list;
+    private final int amountOfIngredients;
+    private final int targetValue;
+
+    public RecipeService(List<Ingredient> list, int amountOfIngredients, int targetValue) {
+        this.list=list;
+        this.amountOfIngredients = amountOfIngredients;
+        this.targetValue = targetValue;
+    }
+
     // Thanks to Yanis MANSOUR's article on https://www.yanismansour.com/articles/20211210-Generate-all-combinations
     // For providing this logic in python format
     public boolean move(List<Integer> indexes, int maxLength) {
@@ -60,15 +70,13 @@ public class RecipeService {
                 indexes.add(i);
             }
             testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue);
-            BigInteger totalResults = (BigIntegerMath.factorial(list.size()).divide(BigIntegerMath.factorial(amountOfIngredients).multiply(BigIntegerMath.factorial(list.size() - amountOfIngredients))));
-            long iteration = 1;
-            System.out.print("\r");
-            System.out.print("1/" + totalResults);
+            BigInteger iteration = BigInteger.ONE;
+            CalculatorView.currentProgress = iteration;
             while (move(indexes, n)) {
                 testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue);
-                iteration += 1;
-                System.out.print("\r");
-                System.out.print(iteration + "/" + totalResults);
+                iteration = iteration.add(BigInteger.ONE);
+                CalculatorView.currentProgress = iteration;
+                System.out.print("\r"+ iteration);
             }
         }
         fileWriter.close();
@@ -81,6 +89,14 @@ public class RecipeService {
         }
         if (tempRecipe.getSumOfValues() >= targetValue) {
             fileWriter.append(tempRecipe.toString());
+        }
+    }
+
+    public void run() {
+        try {
+            findCombinations(list, amountOfIngredients, targetValue);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

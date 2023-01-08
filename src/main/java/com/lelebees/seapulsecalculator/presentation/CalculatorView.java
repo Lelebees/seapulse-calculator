@@ -26,16 +26,23 @@ public class CalculatorView {
     @FXML
     private Label progressLabel;
 
+    public static BigInteger currentProgress = BigInteger.valueOf(0);
+
     @FXML
     protected void onStartButtonClick() throws IOException {
         //Disable the start button, so we don't do an oopsie.
         startButton.setDisable(true);
         IngredientService iService = new IngredientService();
         iService.getData();
-        RecipeService rService = new RecipeService();
         List<Ingredient> ingredients = IngredientService.getIngredients();
         int amountOfIngredients = amountOfIngredientsInput.getValue();
         BigInteger totalResults = (BigIntegerMath.factorial(ingredients.size()).divide(BigIntegerMath.factorial(amountOfIngredients).multiply(BigIntegerMath.factorial(ingredients.size() - amountOfIngredients))));
-        rService.findCombinations(IngredientService.getIngredients(), amountOfIngredients, totalValueInput.getValue());
+        RecipeService rService = new RecipeService(ingredients, amountOfIngredients, totalValueInput.getValue());
+        rService.start();
+        while(rService.isAlive())
+        {
+            progressBar.setProgress(currentProgress.divide(totalResults).doubleValue());
+        }
+        startButton.setDisable(false);
     }
 }
