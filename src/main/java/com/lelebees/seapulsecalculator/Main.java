@@ -1,17 +1,21 @@
 package com.lelebees.seapulsecalculator;
 
-import com.lelebees.seapulsecalculator.application.IngredientService;
-import com.lelebees.seapulsecalculator.application.RecipeService;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
+public class Main extends Application {
+    public static void main(String[] args) {
+        launch();
+    }
 
-public class Main {
-    public static void main(String[] args) throws IOException {
-        IngredientService iService = new IngredientService();
-        iService.getData();
-        RecipeService rService = new RecipeService();
-        File output = rService.findCombinations(IngredientService.getIngredients(), 5, 42);
-        System.out.println("\n"+output);
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("calculator-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 590, 360);
+        stage.setTitle("Seapulse-Webkinz Calculator");
+        stage.setScene(scene);
+        stage.show();
     }
 }

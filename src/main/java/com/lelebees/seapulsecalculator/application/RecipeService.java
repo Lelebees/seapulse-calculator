@@ -39,7 +39,7 @@ public class RecipeService {
         return true;
     }
 
-    public File findCombinations(List<Ingredient> list, int amountOfIngredients, int targetValue) throws IOException {
+    public void findCombinations(List<Ingredient> list, int amountOfIngredients, int targetValue) throws IOException {
         int n = list.size();
         File outputFile = new File("output.txt");
         FileWriter fileWriter = new FileWriter(outputFile);
@@ -47,9 +47,9 @@ public class RecipeService {
             throw new RuntimeException(amountOfIngredients + " must be equal to 0 or positive and less than or equal to " + n);
         }
         if (amountOfIngredients == 0) {
-            return outputFile;
+            return;
         } else if (amountOfIngredients == 1) {
-            return null;
+            return;
         } else if (amountOfIngredients == list.size()) {
             fileWriter = new FileWriter(outputFile);
             fileWriter.write(new ArrayList<>(List.of(new Recipe(list))).toString());
@@ -72,7 +72,6 @@ public class RecipeService {
             }
         }
         fileWriter.close();
-        return outputFile;
     }
 
     public void testCombination(List<Integer> indexes, int k, List<Ingredient> ingredients, FileWriter fileWriter, int targetValue) throws IOException {

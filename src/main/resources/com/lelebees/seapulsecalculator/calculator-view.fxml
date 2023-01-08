@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane prefHeight="360.0" prefWidth="590.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.lelebees.seapulsecalculator.presentation.CalculatorView">
+    <children>
+        <Button fx:id="startButton" layoutX="282.0" layoutY="259.0" mnemonicParsing="false"
+                onAction="#onStartButtonClick" text="Go!"/>
+        <ProgressBar fx:id="progressBar" disable="true" layoutX="200.0" layoutY="314.0" prefWidth="200.0"
+                     progress="0.0"/>
+        <Label fx:id="amountOfIngredientsLabel" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="51.0"
+               layoutY="111.0" text="Amount of Ingredients" textAlignment="CENTER"/>
+        <Label fx:id="amountOfIngredientsLabel1" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="400.0"
+               layoutY="111.0" text="Minimum Value" textAlignment="CENTER"/>
+        <Label fx:id="progressLabel" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="200.0" layoutY="343.0"
+               prefHeight="18.0" prefWidth="200.0" textAlignment="CENTER"/>
+        <Spinner fx:id="amountOfIngredientsInput" editable="true" layoutX="51.0" layoutY="129.0">
+            <valueFactory>
+                <SpinnerValueFactory.IntegerSpinnerValueFactory min="1" max="10"/>
+            </valueFactory>
+        </Spinner>
+        <Spinner fx:id="totalValueInput" editable="true" layoutX="400.0" layoutY="129.0">
+            <valueFactory>
+                <SpinnerValueFactory.IntegerSpinnerValueFactory min="1" max="150"/>
+            </valueFactory>
+        </Spinner>
+    </children>
+</AnchorPane>
