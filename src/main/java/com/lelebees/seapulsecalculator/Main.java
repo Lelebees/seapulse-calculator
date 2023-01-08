@@ -11,7 +11,7 @@ public class Main {
         IngredientService iService = new IngredientService();
         iService.getData();
         RecipeService rService = new RecipeService();
-        File output = rService.findCombinations(IngredientService.getIngredients(), 5, 30);
+        File output = rService.findCombinations(IngredientService.getIngredients(), 5, 42);
         System.out.println("\n"+output);
     }
 }
