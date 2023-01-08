@@ -1,8 +1,13 @@
 package com.lelebees.seapulsecalculator.application;
 
+import com.google.common.math.BigIntegerMath;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
 import com.lelebees.seapulsecalculator.domain.Recipe;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,51 +39,49 @@ public class RecipeService {
         return true;
     }
 
-    public List<Recipe> findCombinations(List<Ingredient> list, int k, int targetValue) {
+    public File findCombinations(List<Ingredient> list, int amountOfIngredients, int targetValue) throws IOException {
         int n = list.size();
-        List<Recipe> combinations = new ArrayList<>();
-        if (k < 0 || k > n) {
-            throw new RuntimeException(k + " must be equal to 0 or positive and less than or equal to " + n);
+        File outputFile = new File("output.txt");
+        FileWriter fileWriter = new FileWriter(outputFile);
+        if (amountOfIngredients < 0 || amountOfIngredients > n) {
+            throw new RuntimeException(amountOfIngredients + " must be equal to 0 or positive and less than or equal to " + n);
         }
-        if (k == 0) {
-            return new ArrayList<>(k);
-        } else if (k == 1) {
+        if (amountOfIngredients == 0) {
+            return outputFile;
+        } else if (amountOfIngredients == 1) {
             return null;
-        } else if (k == list.size()) {
-            return new ArrayList<>(List.of(new Recipe(list)));
+        } else if (amountOfIngredients == list.size()) {
+            fileWriter = new FileWriter(outputFile);
+            fileWriter.write(new ArrayList<>(List.of(new Recipe(list))).toString());
+            fileWriter.close();
         } else {
             List<Integer> indexes = new ArrayList<>();
-            for (int i = 0; i < k; i++) {
+            for (int i = 0; i < amountOfIngredients; i++) {
                 indexes.add(i);
             }
-            Recipe tempRecipe = new Recipe(new ArrayList<>(k+1));
-            for (Integer i : indexes) {
-                tempRecipe.addIngredient(list.get(i));
-            }
-            if (tempRecipe.getSumOfValues() >= targetValue) {
-                combinations.add(tempRecipe);
-            }
-            long totalResults = (long) Math.pow(list.size(), k);
+            testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue);
+            BigInteger totalResults = (BigIntegerMath.factorial(list.size()).divide(BigIntegerMath.factorial(amountOfIngredients).multiply(BigIntegerMath.factorial(list.size() - amountOfIngredients))));
             long iteration = 1;
             System.out.print("\r");
-            System.out.print("1/"+totalResults);
+            System.out.print("1/" + totalResults);
             while (move(indexes, n)) {
-                Recipe tempRecipe2 = new Recipe(new ArrayList<>(k+1));
-                for (Integer i : indexes) {
-                    tempRecipe2.addIngredient(list.get(i));
-                }
-                if (tempRecipe2.getSumOfValues() >= targetValue) {
-                    combinations.add(tempRecipe2);
-                }
-                iteration +=1;
+                testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue);
+                iteration += 1;
                 System.out.print("\r");
-                System.out.print(iteration+"/"+totalResults);
-                // Run garbage collection every 1 million calcs
-                if (iteration % 1000000 == 0) {
-                    System.gc();
-                }
+                System.out.print(iteration + "/" + totalResults);
             }
-            return combinations;
+        }
+        fileWriter.close();
+        return outputFile;
+    }
+
+    public void testCombination(List<Integer> indexes, int k, List<Ingredient> ingredients, FileWriter fileWriter, int targetValue) throws IOException {
+        Recipe tempRecipe = new Recipe(new ArrayList<>(k + 1));
+        for (Integer i : indexes) {
+            tempRecipe.addIngredient(ingredients.get(i));
+        }
+        if (tempRecipe.getSumOfValues() >= targetValue) {
+            fileWriter.append(tempRecipe.toString());
         }
     }
 }

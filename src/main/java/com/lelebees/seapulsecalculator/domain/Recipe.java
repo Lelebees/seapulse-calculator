@@ -37,6 +37,6 @@ public class Recipe {
 
     @Override
     public String toString() {
-        return "Ingredients: " + ingredients + ", Total value: "+getSumOfValues();
+        return "Ingredients: " + ingredients + ", Total value: "+getSumOfValues() +"\n";
     }
 }
