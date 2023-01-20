@@ -13,7 +13,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("calculator-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 590, 360);
+        Scene scene = new Scene(fxmlLoader.load(), 630, 361);
         stage.setTitle("Seapulse-Webkinz Calculator");
         stage.setScene(scene);
         stage.show();
