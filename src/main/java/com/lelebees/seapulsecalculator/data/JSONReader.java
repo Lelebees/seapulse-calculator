@@ -14,7 +14,7 @@ public class JSONReader {
 
     public static List<Ingredient> Read() throws IOException {
         Gson gson = new Gson();
-        Reader reader = Files.newBufferedReader(Paths.get("src/main/resources/com/lelebees/seapulsecalculator/data/Ingredients.json"));
+        Reader reader = Files.newBufferedReader(Paths.get("data/Ingredients.json"));
         List<Ingredient> ingredients = gson.fromJson(reader, new TypeToken<List<Ingredient>>() {
         }.getType());
         reader.close();
