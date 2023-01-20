@@ -47,6 +47,8 @@ public class CalculatorView {
         iService.getData();
         ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
         progressBar.setProgress(0);
+        // Set the max amount of ingredients
+        updateIngredientInput();
     }
 
     @FXML
@@ -129,6 +131,8 @@ public class CalculatorView {
         if (ingredientsListView.getItems().size() > 0) {
             moveSelectedToList.setDisable(false);
         }
+        // Update the amount of available ingredients
+        updateIngredientInput();
     }
 
     private void removeSelectedFromList(ListView<Ingredient> ListView, Button removeSelectedFromList, Button removeAllFromList, Button moveSelectedToList) {
@@ -149,6 +153,8 @@ public class CalculatorView {
         if (ingredientsListView.getItems().size() > 0) {
             moveSelectedToList.setDisable(false);
         }
+        // Update the amount of available ingredients
+       updateIngredientInput();
     }
 
     private void moveSelectedItemToList(ListView<Ingredient> whiteListView, Button removeSelectedFromWhitelist, Button removeAllFromWhiteList, Button moveSelectedToWhitelist) {
@@ -169,5 +175,12 @@ public class CalculatorView {
         if (ingredientsListView.getItems().size() == 0) {
             moveSelectedToWhitelist.setDisable(true);
         }
+        // Update the amount of available ingredients
+        updateIngredientInput();
+    }
+
+    private void updateIngredientInput()
+    {
+        amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, ingredientsListView.getItems().size()+whiteListView.getItems().size()));
     }
 }
