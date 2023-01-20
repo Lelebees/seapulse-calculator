@@ -6,10 +6,7 @@ import com.lelebees.seapulsecalculator.domain.Ingredient;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Spinner;
+import javafx.scene.control.*;
 
 import java.io.IOException;
 import java.util.Comparator;
