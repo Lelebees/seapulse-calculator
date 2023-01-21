@@ -42,6 +42,7 @@ public final class Ingredient {
 
     @Override
     public String toString() {
+        // Debating on whether I should remove the value display to save some megabytes off big solutions
         return name + ";" + value;
     }
 

@@ -31,6 +31,10 @@ public class Recipe {
         return value;
     }
 
+    /**
+     * add a single ingredient to the list of ingredients
+     * @param ingredient the ingredient to be added
+     */
     public void addIngredient(Ingredient ingredient) {
         this.ingredients.add(ingredient);
     }

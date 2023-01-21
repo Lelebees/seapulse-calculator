@@ -31,6 +31,13 @@ public class RecipeService {
 
     // Thanks to Yanis MANSOUR's article on https://www.yanismansour.com/articles/20211210-Generate-all-combinations
     // For providing this logic in python format
+
+    /**
+     * This function allows us to iterate over a list and get each unique combination of items
+     * @param indexes the indexes to be moved
+     * @param maxLength the length of the list we're iterating over
+     * @return if there are more combinations left.
+     */
     public boolean move(List<Integer> indexes, int maxLength) {
         int length = indexes.size();
         int indexToMove = -1;
@@ -56,6 +63,11 @@ public class RecipeService {
         return true;
     }
 
+    /**
+     * this function prepares our list for generation, and then calls the move function to generate all possible combinations
+     * for given parameters (see constructor)
+     * @throws IOException When writing to output file fails, originates from testcombination() calls
+     */
     public void findCombinations() throws IOException {
         //Prepare the variables for the calculation
         int n = list.size();
@@ -85,8 +97,7 @@ public class RecipeService {
             testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue, whiteList);
             // Set the iteration so we can keep track of where we are
             BigInteger iteration = BigInteger.ONE;
-            //CalculatorView.currentProgress = iteration;
-            progress.set((iteration.divide(totalResults)).doubleValue());
+            progress.set(iteration.doubleValue() / totalResults.doubleValue());
             // Do the above for the rest of the combinations!
             while (move(indexes, n)) {
                 testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue, whiteList);
@@ -101,6 +112,16 @@ public class RecipeService {
         fileWriter.close();
     }
 
+    /**
+     * This function decides if we want to keep the generated option
+     * @param indexes the selected indexes
+     * @param k the amount of ingredients there are in a {@link Recipe}
+     * @param ingredients all the ingredients we can choose from
+     * @param fileWriter the file to be written to (default /data/output.txt)
+     * @param targetValue the minimum value for a recipe to be accepted
+     * @param whiteList any whitelisted ingredients to be added to the total
+     * @throws IOException if output.txt cannot be written to
+     */
     public void testCombination(List<Integer> indexes, int k, List<Ingredient> ingredients, FileWriter fileWriter, int targetValue, List<Ingredient> whiteList) throws IOException {
         // Make a new recipe. We give it a set initial capacity to save time, considering we always "know" how long the list is going to be.
         Recipe tempRecipe = new Recipe(new ArrayList<>(k + 1));
@@ -118,6 +139,7 @@ public class RecipeService {
         }
     }
 
+    // Logic for updating a progress bar
     public double getProgress() {
         return progressProperty().get();
     }

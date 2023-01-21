@@ -43,8 +43,10 @@ public class CalculatorView {
 
     @FXML
     protected void initialize() throws IOException {
+        // load data
         IngredientService iService = new IngredientService();
         iService.getData();
+        // prepare visual components with data
         ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
         progressBar.setProgress(0);
         // Set the max amount of ingredients
@@ -55,10 +57,12 @@ public class CalculatorView {
     protected void onStartButtonClick() {
         //Disable the start button, so we don't run the calculation twice.
         startButton.setDisable(true);
+        // Get all the relevant items. we don't look at the blacklist, because we only need the main list to *not* have
+        // the blacklisted items
         List<Ingredient> ingredients = ingredientsListView.getItems();
         List<Ingredient> whiteListIngredients = whiteListView.getItems();
 
-
+        // ensure we don't get wonky generation
         int amountOfIngredients = amountOfIngredientsInput.getValue() - whiteListIngredients.size();
         int whiteListValue = 0;
         for (Ingredient i : whiteListIngredients) {
@@ -66,27 +70,32 @@ public class CalculatorView {
         }
         int totalValue = totalValueInput.getValue() - whiteListValue;
 
-
-        Task<Boolean> calculateOptions = new Task<>() {
+        //Start a task, so we're using a different thread.
+        Task<Void> calculateOptions = new Task<>() {
             @Override
-            protected Boolean call() throws IOException {
+            protected Void call() throws IOException {
+                // prepare the calculation
                 RecipeService rService = new RecipeService(ingredients, amountOfIngredients, totalValue, whiteListIngredients);
+                // allow the progress var in rService to be updated here
                 rService.progressProperty().addListener((obs, oldProgress, newProgress) ->
                         updateProgress(newProgress.doubleValue(), 1));
+                //Start the calculation!
                 rService.findCombinations();
                 startButton.setDisable(false);
-                return true;
+                return null;
             }
 
         };
+        // connect the progress bar and the progress property from our running task
         progressBar.progressProperty().bind(calculateOptions.progressProperty());
 
+        //tell our system to start the calculation
         Thread calcThread = new Thread(calculateOptions);
         calcThread.setDaemon(true);
         calcThread.start();
     }
 
-    // Blacklist operations
+    // Probably could have done this drier. cannot be arsed.
     @FXML
     protected void resetBlackList() {
         resetList(blackListView, removeSelectedFromBlacklist, removeAllFromBlacklist, moveSelectedToBlacklist);

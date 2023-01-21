@@ -12,6 +12,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        // Create and show the UI. Nothing fancy, as it should be.
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("calculator-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 630, 361);
         stage.setTitle("Seapulse-Webkinz Calculator");
