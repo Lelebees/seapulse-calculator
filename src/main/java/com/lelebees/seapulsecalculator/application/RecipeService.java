@@ -71,7 +71,7 @@ public class RecipeService {
     public void findCombinations() throws IOException {
         //Prepare the variables for the calculation
         int n = list.size();
-        File outputFile = new File("/data/output.txt");
+        File outputFile = new File("data/output.txt");
         FileWriter fileWriter = new FileWriter(outputFile);
         // Quickly end this if we've received bad input
         if (amountOfIngredients < 0 || amountOfIngredients > n) {
