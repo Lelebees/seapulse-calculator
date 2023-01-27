@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.lelebees.seapulsecalculator.AppLauncher.log;
+
 public class CalculatorView {
     @FXML
     private Spinner<Integer> amountOfIngredientsInput;
@@ -47,6 +49,7 @@ public class CalculatorView {
         IngredientService iService = new IngredientService();
         iService.getData();
         // prepare visual components with data
+        log("Writing to visual components...");
         ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
         progressBar.setProgress(0);
         // Set the max amount of ingredients
@@ -54,9 +57,10 @@ public class CalculatorView {
     }
 
     @FXML
-    protected void onStartButtonClick() {
+    protected void onStartButtonClick() throws IOException {
         //Disable the start button, so we don't run the calculation twice.
         startButton.setDisable(true);
+        log("asked to start Calculation");
         // Get all the relevant items. we don't look at the blacklist, because we only need the main list to *not* have
         // the blacklisted items
         List<Ingredient> ingredients = ingredientsListView.getItems();
@@ -69,7 +73,7 @@ public class CalculatorView {
             whiteListValue += i.getValue();
         }
         int totalValue = totalValueInput.getValue() - whiteListValue;
-
+        log("prepare thread for calculation...");
         //Start a task, so we're using a different thread.
         Task<Void> calculateOptions = new Task<>() {
             @Override
@@ -87,15 +91,16 @@ public class CalculatorView {
 
         };
         // connect the progress bar and the progress property from our running task
+        log("Progress bar bound to task.");
         progressBar.progressProperty().bind(calculateOptions.progressProperty());
 
         //tell our system to start the calculation
         Thread calcThread = new Thread(calculateOptions);
         calcThread.setDaemon(true);
+        log("starting calculation");
         calcThread.start();
     }
 
-    // Probably could have done this drier. cannot be arsed.
     @FXML
     protected void resetBlackList() {
         resetList(blackListView, removeSelectedFromBlacklist, removeAllFromBlacklist, moveSelectedToBlacklist);

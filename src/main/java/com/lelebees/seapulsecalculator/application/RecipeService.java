@@ -13,6 +13,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lelebees.seapulsecalculator.AppLauncher.log;
+
 public class RecipeService {
     private final List<Ingredient> list;
     private final int amountOfIngredients;
@@ -34,7 +36,8 @@ public class RecipeService {
 
     /**
      * This function allows us to iterate over a list and get each unique combination of items
-     * @param indexes the indexes to be moved
+     *
+     * @param indexes   the indexes to be moved
      * @param maxLength the length of the list we're iterating over
      * @return if there are more combinations left.
      */
@@ -66,13 +69,16 @@ public class RecipeService {
     /**
      * this function prepares our list for generation, and then calls the move function to generate all possible combinations
      * for given parameters (see constructor)
-     * @throws IOException When writing to output file fails, originates from testcombination() calls
+     *
+     * @throws IOException When writing to output file fails, originates from testCombination() calls
      */
     public void findCombinations() throws IOException {
         //Prepare the variables for the calculation
         int n = list.size();
+        log("Creating output file...");
         File outputFile = new File("data/output.txt");
         FileWriter fileWriter = new FileWriter(outputFile);
+        log("Check if we can start calculation...");
         // Quickly end this if we've received bad input
         if (amountOfIngredients < 0 || amountOfIngredients > n) {
             throw new RuntimeException(amountOfIngredients + " must be equal to 0 or positive and less than or equal to " + n);
@@ -88,6 +94,7 @@ public class RecipeService {
             fileWriter.close();
             // We can actually math!
         } else {
+            log("Calculation starting");
             // We need this to keep track of the things we've already had.
             List<Integer> indexes = new ArrayList<>();
             for (int i = 0; i < amountOfIngredients; i++) {
@@ -98,6 +105,7 @@ public class RecipeService {
             // Set the iteration so we can keep track of where we are
             BigInteger iteration = BigInteger.ONE;
             progress.set(iteration.doubleValue() / totalResults.doubleValue());
+            log("Expected amount of calculations: "+totalResults);
             // Do the above for the rest of the combinations!
             while (move(indexes, n)) {
                 testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue, whiteList);
@@ -109,17 +117,19 @@ public class RecipeService {
             }
         }
         //It is done. We can close the file and live happily ever after
+        log("Finished calculation");
         fileWriter.close();
     }
 
     /**
      * This function decides if we want to keep the generated option
-     * @param indexes the selected indexes
-     * @param k the amount of ingredients there are in a {@link Recipe}
+     *
+     * @param indexes     the selected indexes
+     * @param k           the amount of ingredients there are in a {@link Recipe}
      * @param ingredients all the ingredients we can choose from
-     * @param fileWriter the file to be written to (default /data/output.txt)
+     * @param fileWriter  the file to be written to (default /data/output.txt)
      * @param targetValue the minimum value for a recipe to be accepted
-     * @param whiteList any whitelisted ingredients to be added to the total
+     * @param whiteList   any whitelisted ingredients to be added to the total
      * @throws IOException if output.txt cannot be written to
      */
     public void testCombination(List<Integer> indexes, int k, List<Ingredient> ingredients, FileWriter fileWriter, int targetValue, List<Ingredient> whiteList) throws IOException {
