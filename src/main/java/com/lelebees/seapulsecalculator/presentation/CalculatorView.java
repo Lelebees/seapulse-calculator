@@ -20,6 +20,8 @@ public class CalculatorView {
     @FXML
     private Spinner<Integer> totalValueInput;
     @FXML
+    private Spinner<Integer> maxValueInput;
+    @FXML
     private Button startButton;
     @FXML
     private ProgressBar progressBar;
@@ -68,18 +70,16 @@ public class CalculatorView {
 
         // ensure we don't get wonky generation
         int amountOfIngredients = amountOfIngredientsInput.getValue() - whiteListIngredients.size();
-        int whiteListValue = 0;
-        for (Ingredient i : whiteListIngredients) {
-            whiteListValue += i.getValue();
-        }
-        int totalValue = totalValueInput.getValue() - whiteListValue;
-        log("prepare thread for calculation...");
+        int whiteListValue = whiteListIngredients.stream().mapToInt(Ingredient::getValue).sum();
+        int minValue = totalValueInput.getValue() - whiteListValue;
+        int maxValue = maxValueInput.getValue() - whiteListValue;
+        log("Preparing calculation with ingredients: "+ingredients + "; amount: "+amountOfIngredients+"; min:" + minValue+ "; max:"+maxValue + "; whitelist: "+whiteListIngredients);
         //Start a task, so we're using a different thread.
         Task<Void> calculateOptions = new Task<>() {
             @Override
             protected Void call() throws IOException {
                 // prepare the calculation
-                RecipeService rService = new RecipeService(ingredients, amountOfIngredients, totalValue, whiteListIngredients);
+                RecipeService rService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients);
                 // allow the progress var in rService to be updated here
                 rService.progressProperty().addListener((obs, oldProgress, newProgress) ->
                         updateProgress(newProgress.doubleValue(), 1));
@@ -197,4 +197,5 @@ public class CalculatorView {
     {
         amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size()+whiteListView.getItems().size()));
     }
+
 }

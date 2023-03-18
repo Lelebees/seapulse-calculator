@@ -18,15 +18,17 @@ import static com.lelebees.seapulsecalculator.AppLauncher.log;
 public class RecipeService {
     private final List<Ingredient> list;
     private final int amountOfIngredients;
-    private final int targetValue;
+    private final int minValue;
+    private final int maxValue;
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
 
-    public RecipeService(List<Ingredient> list, int amountOfIngredients, int targetValue, List<Ingredient> whitelist) {
+    public RecipeService(List<Ingredient> list, int amountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) {
         this.list = list;
         this.amountOfIngredients = amountOfIngredients;
-        this.targetValue = targetValue;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
         this.whiteList = whitelist;
         this.totalResults = (BigIntegerMath.factorial(list.size()).divide(BigIntegerMath.factorial(amountOfIngredients).multiply(BigIntegerMath.factorial(list.size() - amountOfIngredients))));
     }
@@ -85,7 +87,9 @@ public class RecipeService {
         }
         // No need to math nothing :)
         if (amountOfIngredients == 0) {
-            return;
+            fileWriter = new FileWriter(outputFile);
+            fileWriter.write(new ArrayList<>(List.of(new Recipe(whiteList))).toString());
+            fileWriter.close();
             // There's only one possible combination. a single recipe with all the ingredients.
         } else if (amountOfIngredients == list.size()) {
             fileWriter = new FileWriter(outputFile);
@@ -101,14 +105,14 @@ public class RecipeService {
                 indexes.add(i);
             }
             // Actually decide if the combination meets our requirements
-            testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue, whiteList);
+            testCombination(indexes, amountOfIngredients, list, fileWriter, minValue, maxValue, whiteList);
             // Set the iteration so we can keep track of where we are
             BigInteger iteration = BigInteger.ONE;
             progress.set(iteration.doubleValue() / totalResults.doubleValue());
-            log("Expected amount of calculations: "+totalResults);
+            log("Expected amount of calculations: " + totalResults);
             // Do the above for the rest of the combinations!
             while (move(indexes, n)) {
-                testCombination(indexes, amountOfIngredients, list, fileWriter, targetValue, whiteList);
+                testCombination(indexes, amountOfIngredients, list, fileWriter, minValue, maxValue, whiteList);
                 iteration = iteration.add(BigInteger.ONE);
                 //CalculatorView.currentProgress = iteration;
                 progress.set(iteration.doubleValue() / totalResults.doubleValue());
@@ -128,11 +132,11 @@ public class RecipeService {
      * @param k           the amount of ingredients there are in a {@link Recipe}
      * @param ingredients all the ingredients we can choose from
      * @param fileWriter  the file to be written to (default /data/output.txt)
-     * @param targetValue the minimum value for a recipe to be accepted
+     * @param minValue    the minimum value for a recipe to be accepted
      * @param whiteList   any whitelisted ingredients to be added to the total
      * @throws IOException if output.txt cannot be written to
      */
-    public void testCombination(List<Integer> indexes, int k, List<Ingredient> ingredients, FileWriter fileWriter, int targetValue, List<Ingredient> whiteList) throws IOException {
+    public void testCombination(List<Integer> indexes, int k, List<Ingredient> ingredients, FileWriter fileWriter, int minValue, int maxValue, List<Ingredient> whiteList) throws IOException {
         // Make a new recipe. We give it a set initial capacity to save time, considering we always "know" how long the list is going to be.
         Recipe tempRecipe = new Recipe(new ArrayList<>(k + 1));
         // Select the ingredients
@@ -141,7 +145,8 @@ public class RecipeService {
         }
         //Decide if the recipe meets our criteria or not. If it does, we'll keep it
         //If it doesn't, I know a Garbage Collector that'll happily take it!
-        if (tempRecipe.getSumOfValues() >= targetValue) {
+        int valSum = tempRecipe.getSumOfValues();
+        if (valSum >= minValue && valSum <= maxValue) {
             for (Ingredient i : whiteList) {
                 tempRecipe.addIngredient(i);
             }

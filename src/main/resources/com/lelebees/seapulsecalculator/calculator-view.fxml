@@ -3,59 +3,59 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="361.0" prefWidth="630.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.lelebees.seapulsecalculator.presentation.CalculatorView">
-    <VBox alignment="TOP_CENTER" layoutX="429.0" layoutY="263.0" spacing="2.0">
-        <Button fx:id="startButton" mnemonicParsing="false" onAction="#onStartButtonClick" text="Go!"/>
-        <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="150.0" progress="0.0"/>
-    </VBox>
-    <VBox alignment="TOP_CENTER" layoutX="242.0" layoutY="263.0" spacing="2.0">
-        <Label alignment="BOTTOM_CENTER" contentDisplay="CENTER"
-               text="Amount of Ingredients" textAlignment="CENTER"/>
-        <Spinner fx:id="amountOfIngredientsInput" editable="true">
+<AnchorPane prefHeight="368.0" prefWidth="630.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lelebees.seapulsecalculator.presentation.CalculatorView">
+    <VBox alignment="TOP_CENTER" layoutX="51.0" layoutY="258.0" spacing="2.0">
+        <Label alignment="BOTTOM_CENTER" contentDisplay="CENTER" text="Minimum Value" textAlignment="CENTER" />
+        <Spinner fx:id="totalValueInput" editable="true">
             <valueFactory>
-                <SpinnerValueFactory.IntegerSpinnerValueFactory max="10" min="1"/>
+                <SpinnerValueFactory.IntegerSpinnerValueFactory max="150" min="1" />
             </valueFactory>
         </Spinner>
     </VBox>
-    <VBox alignment="TOP_CENTER" layoutX="51.0" layoutY="263.0" spacing="2.0">
-        <Label alignment="BOTTOM_CENTER" contentDisplay="CENTER"
-               text="Minimum Value" textAlignment="CENTER"/>
-        <Spinner fx:id="totalValueInput" editable="true">
+   <VBox alignment="TOP_CENTER" layoutX="247.0" layoutY="258.0" spacing="2.0">
+      <children>
+         <Label alignment="BOTTOM_CENTER" contentDisplay="CENTER" text="Maximum Value" textAlignment="CENTER" />
+         <Spinner fx:id="maxValueInput" editable="true">
             <valueFactory>
-                <SpinnerValueFactory.IntegerSpinnerValueFactory max="150" min="1"/>
+               <SpinnerValueFactory.IntegerSpinnerValueFactory max="150" min="1" />
+            </valueFactory>
+         </Spinner>
+      </children>
+   </VBox>
+    <VBox alignment="TOP_CENTER" layoutX="443.0" layoutY="258.0" spacing="2.0">
+        <Label alignment="BOTTOM_CENTER" contentDisplay="CENTER" text="Amount of Ingredients" textAlignment="CENTER" />
+        <Spinner fx:id="amountOfIngredientsInput" editable="true">
+            <valueFactory>
+                <SpinnerValueFactory.IntegerSpinnerValueFactory max="10" min="1" />
             </valueFactory>
         </Spinner>
     </VBox>
     <HBox alignment="CENTER" layoutX="51.0" layoutY="33.0" spacing="5.0">
         <VBox alignment="TOP_CENTER">
-            <Label text="Blacklist"/>
-            <ListView fx:id="blackListView" prefHeight="200.0" prefWidth="150.0"/>
+            <Label text="Blacklist" />
+            <ListView fx:id="blackListView" prefHeight="200.0" prefWidth="150.0" />
         </VBox>
         <VBox alignment="CENTER" prefHeight="120.0" prefWidth="35.0" spacing="20.0">
-            <Button fx:id="removeAllFromBlacklist" disable="true" mnemonicParsing="false"
-                    onAction="#resetBlackList" prefHeight="26.0" prefWidth="35.0" text="&gt;&gt;"/>
-            <Button fx:id="removeSelectedFromBlacklist" disable="true" mnemonicParsing="false"
-                    onAction="#removeSelectedFromBlacklist" prefHeight="26.0" prefWidth="35.0" text="&gt;"/>
-            <Button fx:id="moveSelectedToBlacklist" mnemonicParsing="false" onAction="#moveSelectedToBlacklist"
-                    prefHeight="26.0" prefWidth="35.0" text="&lt;"/>
+            <Button fx:id="removeAllFromBlacklist" disable="true" mnemonicParsing="false" onAction="#resetBlackList" prefHeight="26.0" prefWidth="35.0" text="&gt;&gt;" />
+            <Button fx:id="removeSelectedFromBlacklist" disable="true" mnemonicParsing="false" onAction="#removeSelectedFromBlacklist" prefHeight="26.0" prefWidth="35.0" text="&gt;" />
+            <Button fx:id="moveSelectedToBlacklist" mnemonicParsing="false" onAction="#moveSelectedToBlacklist" prefHeight="26.0" prefWidth="35.0" text="&lt;" />
         </VBox>
         <VBox alignment="TOP_CENTER">
-            <Label/>
-            <ListView fx:id="ingredientsListView" prefHeight="200.0" prefWidth="150.0"/>
+            <Label />
+            <ListView fx:id="ingredientsListView" prefHeight="200.0" prefWidth="150.0" />
         </VBox>
         <VBox alignment="CENTER" prefHeight="120.0" prefWidth="35.0" spacing="20.0">
-            <Button fx:id="removeAllFromWhitelist" disable="true" mnemonicParsing="false"
-                    onAction="#resetWhitelist" prefHeight="26.0" prefWidth="35.0" text="&lt;&lt;"/>
-            <Button fx:id="removeSelectedFromWhitelist" disable="true" mnemonicParsing="false"
-                    onAction="#removeSelectedFromWhitelist" prefHeight="26.0" prefWidth="35.0" text="&lt;"/>
-            <Button fx:id="moveSelectedToWhitelist" mnemonicParsing="false" onAction="#moveSelectedToWhitelist"
-                    prefHeight="26.0" prefWidth="35.0" text="&gt;"/>
+            <Button fx:id="removeAllFromWhitelist" disable="true" mnemonicParsing="false" onAction="#resetWhitelist" prefHeight="26.0" prefWidth="35.0" text="&lt;&lt;" />
+            <Button fx:id="removeSelectedFromWhitelist" disable="true" mnemonicParsing="false" onAction="#removeSelectedFromWhitelist" prefHeight="26.0" prefWidth="35.0" text="&lt;" />
+            <Button fx:id="moveSelectedToWhitelist" mnemonicParsing="false" onAction="#moveSelectedToWhitelist" prefHeight="26.0" prefWidth="35.0" text="&gt;" />
         </VBox>
         <VBox alignment="TOP_CENTER">
-            <Label text="Whitelist"/>
-            <ListView fx:id="whiteListView" prefHeight="200.0" prefWidth="150.0"/>
+            <Label text="Whitelist" />
+            <ListView fx:id="whiteListView" prefHeight="200.0" prefWidth="150.0" />
         </VBox>
     </HBox>
+    <VBox alignment="TOP_CENTER" layoutX="241.0" layoutY="309.0" spacing="2.0">
+        <Button fx:id="startButton" mnemonicParsing="false" onAction="#onStartButtonClick" text="Go!" />
+        <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="150.0" progress="0.0" />
+    </VBox>
 </AnchorPane>
