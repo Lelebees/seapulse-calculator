@@ -39,3 +39,4 @@ build/
 
 ### Generated Files ###
 output.txt
+logs/

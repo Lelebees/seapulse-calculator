@@ -87,16 +87,12 @@ public class RecipeService {
         }
         // No need to math nothing :)
         if (amountOfIngredients == 0) {
-            fileWriter = new FileWriter(outputFile);
             fileWriter.write(new ArrayList<>(List.of(new Recipe(whiteList))).toString());
-            fileWriter.close();
-            // There's only one possible combination. a single recipe with all the ingredients.
+        // There's only one possible combination. a single recipe with all the ingredients.
         } else if (amountOfIngredients == list.size()) {
-            fileWriter = new FileWriter(outputFile);
             list.addAll(whiteList);
             fileWriter.write(new ArrayList<>(List.of(new Recipe(list))).toString());
-            fileWriter.close();
-            // We can actually math!
+        // We can actually math!
         } else {
             log("Calculation starting");
             // We need this to keep track of the things we've already had.
@@ -106,6 +102,7 @@ public class RecipeService {
             }
             // Actually decide if the combination meets our requirements
             testCombination(indexes, amountOfIngredients, list, fileWriter, minValue, maxValue, whiteList);
+
             // Set the iteration so we can keep track of where we are
             BigInteger iteration = BigInteger.ONE;
             progress.set(iteration.doubleValue() / totalResults.doubleValue());
@@ -123,6 +120,7 @@ public class RecipeService {
         //It is done. We can close the file and live happily ever after
         log("Finished calculation");
         fileWriter.close();
+        progress.set(1);
     }
 
     /**
