@@ -10,7 +10,9 @@ import javafx.scene.control.*;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.lelebees.seapulsecalculator.AppLauncher.log;
 
@@ -44,15 +46,28 @@ public class CalculatorView {
     @FXML
     private Button moveSelectedToWhitelist;
 
+    Map<ListView<Ingredient>, List<Button>> listButtons;
+    List<Button> whiteListRemoveButtons;
+    List<Button> blackListRemoveButtons;
+    List<Button> mainListRemoveButtons;
+
 
     @FXML
     protected void initialize() throws IOException {
+        whiteListRemoveButtons = List.of(removeAllFromWhitelist, removeSelectedFromWhitelist);
+        blackListRemoveButtons = List.of(removeAllFromBlacklist, removeSelectedFromBlacklist);
+        mainListRemoveButtons = List.of(moveSelectedToBlacklist, moveSelectedToWhitelist);
+        listButtons = new HashMap<>();
+        listButtons.put(ingredientsListView, mainListRemoveButtons);
+        listButtons.put(whiteListView, whiteListRemoveButtons);
+        listButtons.put(blackListView, blackListRemoveButtons);
+
         IngredientService iService = new IngredientService();
         iService.getData();
         log("Writing to visual components...");
         ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
         progressBar.setProgress(0);
-        amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size()+whiteListView.getItems().size()));
+        amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size() + whiteListView.getItems().size()));
     }
 
     @FXML
@@ -68,7 +83,7 @@ public class CalculatorView {
         int whiteListValue = whiteListIngredients.stream().mapToInt(Ingredient::getValue).sum();
         int minValue = totalValueInput.getValue() - whiteListValue;
         int maxValue = maxValueInput.getValue() - whiteListValue;
-        log("Preparing calculation with ingredients: "+ingredients + "; amount: "+amountOfIngredients+"; min:" + minValue+ "; max:"+maxValue + "; whitelist: "+whiteListIngredients);
+        log("Preparing calculation with ingredients: " + ingredients + "; amount: " + amountOfIngredients + "; min:" + minValue + "; max:" + maxValue + "; whitelist: " + whiteListIngredients);
         Task<Void> calculateOptions = new Task<>() {
             @Override
             protected Void call() throws IOException {
@@ -92,100 +107,71 @@ public class CalculatorView {
 
     @FXML
     protected void resetBlackList() {
-        resetList(blackListView, removeSelectedFromBlacklist, removeAllFromBlacklist, moveSelectedToBlacklist);
+        moveAllItems(blackListView, ingredientsListView);
     }
 
     @FXML
     protected void removeSelectedFromBlacklist() {
-        removeSelectedFromList(blackListView, removeSelectedFromBlacklist, removeAllFromBlacklist, moveSelectedToBlacklist);
+        moveSelectedItem(blackListView, ingredientsListView);
     }
 
     @FXML
     protected void moveSelectedToBlacklist() {
-        moveSelectedItemToList(blackListView, removeSelectedFromBlacklist, removeAllFromBlacklist, moveSelectedToBlacklist);
+        moveSelectedItem(ingredientsListView, blackListView);
     }
 
     //Whitelist operations
     @FXML
     protected void resetWhitelist() {
-        resetList(whiteListView, removeSelectedFromWhitelist, removeAllFromWhitelist, moveSelectedToWhitelist);
+        moveAllItems(whiteListView, ingredientsListView);
     }
 
     @FXML
     protected void removeSelectedFromWhitelist() {
-        removeSelectedFromList(whiteListView, removeSelectedFromWhitelist, removeAllFromWhitelist, moveSelectedToWhitelist);
+        moveSelectedItem(whiteListView, ingredientsListView);
     }
 
     @FXML
     protected void moveSelectedToWhitelist() {
-        moveSelectedItemToList(whiteListView, removeSelectedFromWhitelist, removeAllFromWhitelist, moveSelectedToWhitelist);
+        moveSelectedItem(ingredientsListView, whiteListView);
     }
 
-    private void resetList(ListView<Ingredient> ListView, Button removeSelectedFromList, Button removeAllFromList, Button moveSelectedToList) {
-        ingredientsListView.getItems().addAll(ListView.getItems());
-        ListView.setItems(FXCollections.observableArrayList());
-        ingredientsListView.getItems().sort(Comparator.comparing(Ingredient::getName));
-
-        //Activate and deactivate the correct buttons to prevent illegal inputs
-        removeSelectedFromList.setDisable(true);
-        removeAllFromList.setDisable(true);
-        // This *shouldn't* ever be true, but I don't trust myself, and not trusting myself has
-        // proven to be the best course of action one too many times.
-        if (ingredientsListView.getItems().size() > 0) {
-            moveSelectedToList.setDisable(false);
-        }
-        // Update the amount of available ingredients
-        updateIngredientInput();
-    }
-
-    private void removeSelectedFromList(ListView<Ingredient> ListView, Button removeSelectedFromList, Button removeAllFromList, Button moveSelectedToList) {
-        Ingredient itemToMove = ListView.getSelectionModel().getSelectedItem();
-        // In theory, we don't need this, but it can never hurt having extra failsafes.
-        if (itemToMove == null) {
-            return;
-        }
-        ingredientsListView.getItems().add(itemToMove);
-        ListView.getItems().remove(itemToMove);
-        ingredientsListView.getItems().sort(Comparator.comparing(Ingredient::getName));
-
-        //Activate and deactivate the correct buttons to prevent illegal inputs
-        if (ListView.getItems().size() == 0) {
-            removeSelectedFromList.setDisable(true);
-            removeAllFromList.setDisable(true);
-        }
-        if (ingredientsListView.getItems().size() > 0) {
-            moveSelectedToList.setDisable(false);
-        }
-        // Update the amount of available ingredients
-       updateIngredientInput();
-    }
-
-    private void moveSelectedItemToList(ListView<Ingredient> whiteListView, Button removeSelectedFromWhitelist, Button removeAllFromWhiteList, Button moveSelectedToWhitelist) {
-        Ingredient itemToMove = ingredientsListView.getSelectionModel().getSelectedItem();
-        // In theory, we don't need this, but it can never hurt having extra failsafes.
-        if (itemToMove == null) {
-            return;
-        }
-        whiteListView.getItems().add(itemToMove);
-        ingredientsListView.getItems().remove(itemToMove);
-        whiteListView.getItems().sort(Comparator.comparing(Ingredient::getName));
-
-        //Activate and deactivate the correct buttons to prevent illegal inputs
-        if (whiteListView.getItems().size() > 0) {
-            removeSelectedFromWhitelist.setDisable(false);
-            removeAllFromWhiteList.setDisable(false);
-        }
-        if (ingredientsListView.getItems().size() == 0) {
-            moveSelectedToWhitelist.setDisable(true);
-        }
-        // Update the amount of available ingredients
-        updateIngredientInput();
-    }
-
-    private void updateIngredientInput()
-    {
+    private void updateIngredientInput() {
         SpinnerValueFactory.IntegerSpinnerValueFactory factory = (SpinnerValueFactory.IntegerSpinnerValueFactory) amountOfIngredientsInput.getValueFactory();
         factory.setMax(ingredientsListView.getItems().size() + whiteListView.getItems().size());
     }
 
+
+    private void moveSelectedItem(ListView<Ingredient> origin, ListView<Ingredient> destination) {
+        Ingredient item = origin.getSelectionModel().getSelectedItem();
+        if (item == null)
+        {
+            return;
+        }
+        destination.getItems().add(item);
+        destination.getItems().sort(Comparator.comparing(Ingredient::getName));
+        origin.getItems().remove(item);
+        updateMoveButtons(origin, destination);
+        updateIngredientInput();
+    }
+
+    private void moveAllItems(ListView<Ingredient> origin, ListView<Ingredient> destination) {
+        List<Ingredient> ingredients = origin.getItems();
+        destination.getItems().addAll(ingredients);
+        destination.getItems().sort(Comparator.comparing(Ingredient::getName));
+        origin.setItems(FXCollections.observableArrayList());
+        updateMoveButtons(origin, destination);
+        updateIngredientInput();
+    }
+
+    private void updateMoveButtons(ListView<Ingredient> origin, ListView<Ingredient> destination) {
+        if (origin.getItems().isEmpty()) {
+            List<Button> originRemoveButtons = listButtons.get(origin);
+            originRemoveButtons.forEach(button -> button.setDisable(true));
+        }
+        if (!destination.getItems().isEmpty()) {
+            List<Button> destinationRemoveButtons = listButtons.get(destination);
+            destinationRemoveButtons.forEach(button -> button.setDisable(false));
+        }
+    }
 }
