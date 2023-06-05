@@ -14,9 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.lelebees.seapulsecalculator.AppLauncher.log;
+import static com.lelebees.seapulsecalculator.AppLauncher.logger;
 
 public class CalculatorView {
+    Map<ListView<Ingredient>, List<Button>> listButtons;
+    List<Button> whiteListRemoveButtons;
+    List<Button> blackListRemoveButtons;
+    List<Button> mainListRemoveButtons;
     @FXML
     private Spinner<Integer> amountOfIngredientsInput;
     @FXML
@@ -46,12 +50,6 @@ public class CalculatorView {
     @FXML
     private Button moveSelectedToWhitelist;
 
-    Map<ListView<Ingredient>, List<Button>> listButtons;
-    List<Button> whiteListRemoveButtons;
-    List<Button> blackListRemoveButtons;
-    List<Button> mainListRemoveButtons;
-
-
     @FXML
     protected void initialize() throws IOException {
         whiteListRemoveButtons = List.of(removeAllFromWhitelist, removeSelectedFromWhitelist);
@@ -64,16 +62,16 @@ public class CalculatorView {
 
         IngredientService iService = new IngredientService();
         iService.getData();
-        log("Writing to visual components...");
+        logger.debug("Writing to visual components...");
         ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
         progressBar.setProgress(0);
         amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size() + whiteListView.getItems().size()));
     }
 
     @FXML
-    protected void onStartButtonClick() throws IOException {
+    protected void onStartButtonClick() {
         startButton.setDisable(true);
-        log("asked to start Calculation");
+        logger.debug("asked to start Calculation");
         // Get all the relevant items. we don't look at the blacklist, because we only need the main list to *not* have
         // the blacklisted items
         List<Ingredient> ingredients = ingredientsListView.getItems();
@@ -83,7 +81,7 @@ public class CalculatorView {
         int whiteListValue = whiteListIngredients.stream().mapToInt(Ingredient::getValue).sum();
         int minValue = totalValueInput.getValue() - whiteListValue;
         int maxValue = maxValueInput.getValue() - whiteListValue;
-        log("Preparing calculation with ingredients: " + ingredients + "; amount: " + amountOfIngredients + "; min:" + minValue + "; max:" + maxValue + "; whitelist: " + whiteListIngredients);
+        logger.info("Preparing calculation with ingredients: " + ingredients + "; amount: " + amountOfIngredients + "; min:" + minValue + "; max:" + maxValue + "; whitelist: " + whiteListIngredients);
         Task<Void> calculateOptions = new Task<>() {
             @Override
             protected Void call() throws IOException {
@@ -96,12 +94,12 @@ public class CalculatorView {
             }
 
         };
-        log("Progress bar bound to task.");
+        logger.debug("Progress bar bound to task.");
         progressBar.progressProperty().bind(calculateOptions.progressProperty());
 
         Thread calcThread = new Thread(calculateOptions);
         calcThread.setDaemon(true);
-        log("starting calculation");
+        logger.debug("starting calculation");
         calcThread.start();
     }
 
@@ -144,8 +142,7 @@ public class CalculatorView {
 
     private void moveSelectedItem(ListView<Ingredient> origin, ListView<Ingredient> destination) {
         Ingredient item = origin.getSelectionModel().getSelectedItem();
-        if (item == null)
-        {
+        if (item == null) {
             return;
         }
         destination.getItems().add(item);

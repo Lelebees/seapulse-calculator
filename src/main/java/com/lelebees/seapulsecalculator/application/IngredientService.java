@@ -9,11 +9,11 @@ import java.util.List;
 public class IngredientService {
     private static List<Ingredient> ingredients;
 
-    public void getData() throws IOException {
-        ingredients = JSONReader.Read();
-    }
-
     public static List<Ingredient> getIngredients() {
         return ingredients;
+    }
+
+    public void getData() throws IOException {
+        ingredients = JSONReader.Read();
     }
 }

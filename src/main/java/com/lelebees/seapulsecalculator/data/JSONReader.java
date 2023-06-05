@@ -10,18 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.lelebees.seapulsecalculator.AppLauncher.log;
+import static com.lelebees.seapulsecalculator.AppLauncher.logger;
 
 public class JSONReader {
 
     public static List<Ingredient> Read() throws IOException {
         Gson gson = new Gson();
-        log("Reading ingredients...");
+        logger.debug("Reading ingredients...");
         Reader reader = Files.newBufferedReader(Paths.get("data/Ingredients.json"));
         List<Ingredient> ingredients = gson.fromJson(reader, new TypeToken<List<Ingredient>>() {
         }.getType());
         reader.close();
-        log("Ingredients read");
+        logger.debug("Ingredients read");
         return ingredients;
     }
 }

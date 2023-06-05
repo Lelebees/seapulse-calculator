@@ -1,37 +1,21 @@
 package com.lelebees.seapulsecalculator;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AppLauncher {
     //I only have this so the JAR will work.
-    public static FileWriter logger;
-    public static void main(String[] args) throws IOException {
-        //Generate a log file to write logs to.
-        LocalDateTime currentTime = LocalDateTime.now();
-        String timeString = currentTime.format(DateTimeFormatter.ofPattern("yyy-MM-dd_HH-mm-ss"));
-        File logFile = new File("logs/"+timeString+".txt");
-        logger = new FileWriter(logFile);
-        log("Starting Logging!");
+    public static final Logger logger = LogManager.getLogger();
+
+    public static void main(String[] args) {
+        logger.info("Starting Logging!");
         try {
             Main.main(args);
-        } catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-            System.out.println(Arrays.toString(e.getStackTrace()));
-            log(e.toString());
-            log(Arrays.toString(e.getStackTrace()));
+        } catch (Exception e) {
+            logger.error(e.toString());
+            logger.debug(e.getStackTrace());
         }
 
-        log("Ending logging...");
-        logger.close();
-    }
-
-    public static void log(String text) throws IOException {
-        logger.append("["+LocalDateTime.now()+"]: ").append(text).append("\n");
+        logger.info("Ending logging...");
     }
 }

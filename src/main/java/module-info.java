@@ -3,6 +3,7 @@ module com.lelebees.seapulsecalculator {
     requires javafx.fxml;
     requires com.google.common;
     requires com.google.gson;
+    requires org.apache.logging.log4j;
 
 
     opens com.lelebees.seapulsecalculator to javafx.fxml;

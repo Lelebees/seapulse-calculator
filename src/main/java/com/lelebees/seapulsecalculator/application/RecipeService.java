@@ -2,6 +2,7 @@ package com.lelebees.seapulsecalculator.application;
 
 import com.google.common.math.BigIntegerMath;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
+import com.lelebees.seapulsecalculator.domain.IngredientsOutOfBoundsException;
 import com.lelebees.seapulsecalculator.domain.Recipe;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.lelebees.seapulsecalculator.AppLauncher.log;
+import static com.lelebees.seapulsecalculator.AppLauncher.logger;
 
 public class RecipeService {
     private final List<Ingredient> ingredientList;
@@ -23,8 +24,8 @@ public class RecipeService {
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
-    private BigInteger iteration;
     private final FileWriter fileWriter;
+    private BigInteger iteration;
 
 
     public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) throws IOException {
@@ -33,14 +34,14 @@ public class RecipeService {
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.whiteList = whitelist;
-        this.totalResults = (BigIntegerMath.factorial(ingredientList.size()).divide(BigIntegerMath.factorial(requestedAmountOfIngredients).multiply(BigIntegerMath.factorial(ingredientList.size() - requestedAmountOfIngredients))));
         this.iteration = BigInteger.ZERO;
         this.fileWriter = new FileWriter("data/output.txt");
 
-        log("Checking if we can start calculation...");
+        logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
-            throw new RuntimeException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
+            throw new IngredientsOutOfBoundsException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
         }
+        this.totalResults = (BigIntegerMath.factorial(ingredientList.size()).divide(BigIntegerMath.factorial(requestedAmountOfIngredients).multiply(BigIntegerMath.factorial(ingredientList.size() - requestedAmountOfIngredients))));
         if (requestedAmountOfIngredients == 0) {
             fileWriter.write(List.of(new Recipe(whiteList)).toString());
         } else if (requestedAmountOfIngredients == ingredientList.size()) {
@@ -91,8 +92,8 @@ public class RecipeService {
      * @throws IOException When writing to output file fails, originates from testCombination() calls, and log calls
      */
     public void findCombinations() throws IOException {
-        log("Calculation starting");
-        log("Expected amount of calculations: " + totalResults);
+        logger.debug("Calculation starting");
+        logger.info("Expected amount of calculations: " + totalResults);
 
         List<Integer> indexes = IntStream.range(0, requestedAmountOfIngredients).boxed().collect(Collectors.toList());
         testCombination(indexes);
@@ -101,7 +102,7 @@ public class RecipeService {
             testCombination(indexes);
             System.out.print("\r" + iteration);
         }
-        log("Finished calculation");
+        logger.debug("Finished calculation");
         fileWriter.close();
         progress.set(1);
     }

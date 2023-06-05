@@ -16,8 +16,8 @@ public class Recipe extends ArrayList<Ingredient> {
     public Recipe(List<Ingredient> ingredients) {
         super(ingredients);
     }
-    public Recipe()
-    {
+
+    public Recipe() {
         super();
     }
 
@@ -32,6 +32,6 @@ public class Recipe extends ArrayList<Ingredient> {
 
     @Override
     public String toString() {
-        return super.toString() + ": "+getSumOfValues() +"\n";
+        return super.toString() + ": " + getSumOfValues() + "\n";
     }
 }
