@@ -59,7 +59,7 @@ public class RecipeService {
      * @param maxLength the length of the list we're iterating over
      * @return if there are more combinations left.
      */
-    public boolean move(List<Integer> indexes, int maxLength) {
+    private boolean move(List<Integer> indexes, int maxLength) {
         int length = indexes.size();
         int indexToMove = -1;
 
