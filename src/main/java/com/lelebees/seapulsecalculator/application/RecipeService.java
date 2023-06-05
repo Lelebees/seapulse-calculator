@@ -28,26 +28,25 @@ public class RecipeService {
     private BigInteger iteration;
 
 
-    public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) throws IOException {
+    public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, FileWriter fileWriter) throws IOException {
         this.ingredientList = ingredientList;
         this.requestedAmountOfIngredients = requestedAmountOfIngredients;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.whiteList = whitelist;
         this.iteration = BigInteger.ZERO;
-        this.fileWriter = new FileWriter("data/output.txt");
+        this.fileWriter = fileWriter;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
             throw new IngredientsOutOfBoundsException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
         }
-        this.totalResults = (BigIntegerMath.factorial(ingredientList.size()).divide(BigIntegerMath.factorial(requestedAmountOfIngredients).multiply(BigIntegerMath.factorial(ingredientList.size() - requestedAmountOfIngredients))));
-        if (requestedAmountOfIngredients == 0) {
-            fileWriter.write(List.of(new Recipe(whiteList)).toString());
-        } else if (requestedAmountOfIngredients == ingredientList.size()) {
-            ingredientList.addAll(whiteList);
-            fileWriter.write(List.of(new Recipe(ingredientList)).toString());
-        }
+        // (iList.size()!) / (amnt! * (iList.size() - amnt)!)
+        this.totalResults = (BigIntegerMath.factorial(ingredientList.size())
+                .divide(BigIntegerMath.factorial(requestedAmountOfIngredients)
+                        .multiply(BigIntegerMath.factorial(ingredientList.size() - requestedAmountOfIngredients))
+                )
+        );
     }
 
     // Thanks to Yanis MANSOUR's article on https://www.yanismansour.com/articles/20211210-Generate-all-combinations
@@ -95,6 +94,17 @@ public class RecipeService {
         logger.debug("Calculation starting");
         logger.info("Expected amount of calculations: " + totalResults);
 
+        if (requestedAmountOfIngredients == 0) {
+            fileWriter.write(List.of(new Recipe(whiteList)).toString());
+            finish();
+            return;
+        } else if (requestedAmountOfIngredients == ingredientList.size()) {
+            ingredientList.addAll(whiteList);
+            fileWriter.write(List.of(new Recipe(ingredientList)).toString());
+            finish();
+            return;
+        }
+
         List<Integer> indexes = IntStream.range(0, requestedAmountOfIngredients).boxed().collect(Collectors.toList());
         testCombination(indexes);
 
@@ -102,14 +112,18 @@ public class RecipeService {
             testCombination(indexes);
             System.out.print("\r" + iteration);
         }
-        logger.debug("Finished calculation");
-        fileWriter.close();
-        progress.set(1);
+        finish();
     }
 
     private void updateProgress() {
         iteration = iteration.add(BigInteger.ONE);
         progress.set(iteration.doubleValue() / totalResults.doubleValue());
+    }
+
+    private void finish() throws IOException {
+        logger.debug("Finished calculation");
+        progress.set(1);
+        fileWriter.close();
     }
 
     /**
@@ -133,6 +147,7 @@ public class RecipeService {
     }
 
     // Logic for updating a progress bar
+    @SuppressWarnings("unused")
     public double getProgress() {
         return progressProperty().get();
     }

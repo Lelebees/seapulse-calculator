@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -85,7 +86,7 @@ public class CalculatorView {
         Task<Void> calculateOptions = new Task<>() {
             @Override
             protected Void call() throws IOException {
-                RecipeService rService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients);
+                RecipeService rService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients, new FileWriter("data/output.txt"));
                 rService.progressProperty().addListener((obs, oldProgress, newProgress) ->
                         updateProgress(newProgress.doubleValue(), 1));
                 rService.findCombinations();
