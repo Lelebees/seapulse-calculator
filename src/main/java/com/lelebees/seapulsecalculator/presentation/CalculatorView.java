@@ -47,20 +47,16 @@ public class CalculatorView {
 
     @FXML
     protected void initialize() throws IOException {
-        // load data
         IngredientService iService = new IngredientService();
         iService.getData();
-        // prepare visual components with data
         log("Writing to visual components...");
         ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
         progressBar.setProgress(0);
-        // Set the max amount of ingredients
         amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size()+whiteListView.getItems().size()));
     }
 
     @FXML
     protected void onStartButtonClick() throws IOException {
-        //Disable the start button, so we don't run the calculation twice.
         startButton.setDisable(true);
         log("asked to start Calculation");
         // Get all the relevant items. we don't look at the blacklist, because we only need the main list to *not* have
@@ -68,33 +64,26 @@ public class CalculatorView {
         List<Ingredient> ingredients = ingredientsListView.getItems();
         List<Ingredient> whiteListIngredients = whiteListView.getItems();
 
-        // ensure we don't get wonky generation
         int amountOfIngredients = amountOfIngredientsInput.getValue() - whiteListIngredients.size();
         int whiteListValue = whiteListIngredients.stream().mapToInt(Ingredient::getValue).sum();
         int minValue = totalValueInput.getValue() - whiteListValue;
         int maxValue = maxValueInput.getValue() - whiteListValue;
         log("Preparing calculation with ingredients: "+ingredients + "; amount: "+amountOfIngredients+"; min:" + minValue+ "; max:"+maxValue + "; whitelist: "+whiteListIngredients);
-        //Start a task, so we're using a different thread.
         Task<Void> calculateOptions = new Task<>() {
             @Override
             protected Void call() throws IOException {
-                // prepare the calculation
                 RecipeService rService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients);
-                // allow the progress var in rService to be updated here
                 rService.progressProperty().addListener((obs, oldProgress, newProgress) ->
                         updateProgress(newProgress.doubleValue(), 1));
-                //Start the calculation!
                 rService.findCombinations();
                 startButton.setDisable(false);
                 return null;
             }
 
         };
-        // connect the progress bar and the progress property from our running task
         log("Progress bar bound to task.");
         progressBar.progressProperty().bind(calculateOptions.progressProperty());
 
-        //tell our system to start the calculation
         Thread calcThread = new Thread(calculateOptions);
         calcThread.setDaemon(true);
         log("starting calculation");
