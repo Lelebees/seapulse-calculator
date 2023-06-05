@@ -21,7 +21,9 @@ public class AppLauncher {
             Main.main(args);
         } catch (Exception e)
         {
-            log(e.getMessage());
+            System.out.println(e.getMessage());
+            System.out.println(Arrays.toString(e.getStackTrace()));
+            log(e.toString());
             log(Arrays.toString(e.getStackTrace()));
         }
 

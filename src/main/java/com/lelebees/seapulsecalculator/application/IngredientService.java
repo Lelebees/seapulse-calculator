@@ -9,7 +9,6 @@ import java.util.List;
 public class IngredientService {
     private static List<Ingredient> ingredients;
 
-    //Get all the ingredients in local storage.
     public void getData() throws IOException {
         ingredients = JSONReader.Read();
     }

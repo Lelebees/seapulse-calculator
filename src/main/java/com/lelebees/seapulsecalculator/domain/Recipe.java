@@ -1,13 +1,12 @@
 package com.lelebees.seapulsecalculator.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Class to store the relevant data/behaviour for a recipe (like the value of its ingredients)
  */
-public class Recipe {
-
-    private final List<Ingredient> ingredients;
+public class Recipe extends ArrayList<Ingredient> {
 
     /**
      * Default constructor
@@ -15,7 +14,11 @@ public class Recipe {
      * @param ingredients the {@link Ingredient}s of the recipe
      */
     public Recipe(List<Ingredient> ingredients) {
-        this.ingredients = ingredients;
+        super(ingredients);
+    }
+    public Recipe()
+    {
+        super();
     }
 
     /**
@@ -24,23 +27,11 @@ public class Recipe {
      * @return The total value of this recipe's {@link Ingredient}s
      */
     public int getSumOfValues() {
-        int value = 0;
-        for (Ingredient i : this.ingredients) {
-            value += i.getValue();
-        }
-        return value;
-    }
-
-    /**
-     * add a single ingredient to the list of ingredients
-     * @param ingredient the ingredient to be added
-     */
-    public void addIngredient(Ingredient ingredient) {
-        this.ingredients.add(ingredient);
+        return super.stream().mapToInt(Ingredient::getValue).sum();
     }
 
     @Override
     public String toString() {
-        return ingredients + ": "+getSumOfValues() +"\n";
+        return super.toString() + ": "+getSumOfValues() +"\n";
     }
 }
