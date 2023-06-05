@@ -55,7 +55,7 @@ public class CalculatorView {
         ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
         progressBar.setProgress(0);
         // Set the max amount of ingredients
-        updateIngredientInput();
+        amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size()+whiteListView.getItems().size()));
     }
 
     @FXML
@@ -195,7 +195,8 @@ public class CalculatorView {
 
     private void updateIngredientInput()
     {
-        amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size()+whiteListView.getItems().size()));
+        SpinnerValueFactory.IntegerSpinnerValueFactory factory = (SpinnerValueFactory.IntegerSpinnerValueFactory) amountOfIngredientsInput.getValueFactory();
+        factory.setMax(ingredientsListView.getItems().size() + whiteListView.getItems().size());
     }
 
 }
