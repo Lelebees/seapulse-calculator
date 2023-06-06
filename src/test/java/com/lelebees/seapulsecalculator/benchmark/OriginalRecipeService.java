@@ -1,4 +1,4 @@
-package com.lelebees.seapulsecalculator.application;
+package com.lelebees.seapulsecalculator.benchmark;
 
 import com.google.common.math.BigIntegerMath;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 
 import static com.lelebees.seapulsecalculator.AppLauncher.logger;
 
-public class RecipeService {
+public class OriginalRecipeService {
     private final List<Ingredient> ingredientList;
     private final int requestedAmountOfIngredients;
     private final int minValue;
@@ -28,7 +28,7 @@ public class RecipeService {
     private BigInteger iteration;
 
 
-    public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, FileWriter fileWriter) {
+    public OriginalRecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, FileWriter fileWriter) throws IOException {
         this.ingredientList = ingredientList;
         this.requestedAmountOfIngredients = requestedAmountOfIngredients;
         this.minValue = minValue;
@@ -110,6 +110,7 @@ public class RecipeService {
 
         while (move(indexes, ingredientList.size())) {
             testCombination(indexes);
+            System.out.print("\r" + iteration);
         }
         finish();
     }
