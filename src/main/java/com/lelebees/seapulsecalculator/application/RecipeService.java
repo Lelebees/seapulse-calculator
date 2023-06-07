@@ -25,7 +25,7 @@ public class RecipeService {
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
     private final FileWriter fileWriter;
-    private BigInteger iteration;
+    private long iteration;
 
 
     public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, FileWriter fileWriter) {
@@ -34,13 +34,14 @@ public class RecipeService {
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.whiteList = whitelist;
-        this.iteration = BigInteger.ZERO;
+        this.iteration = 0;
         this.fileWriter = fileWriter;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
             throw new IngredientsOutOfBoundsException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
         }
+
         // (iList.size()!) / (amnt! * (iList.size() - amnt)!)
         this.totalResults = (BigIntegerMath.factorial(ingredientList.size())
                 .divide(BigIntegerMath.factorial(requestedAmountOfIngredients)
@@ -115,8 +116,8 @@ public class RecipeService {
     }
 
     private void updateProgress() {
-        iteration = iteration.add(BigInteger.ONE);
-        progress.set(iteration.doubleValue() / totalResults.doubleValue());
+        iteration++;
+        progress.set((double) iteration / totalResults.doubleValue());
     }
 
     private void finish() throws IOException {

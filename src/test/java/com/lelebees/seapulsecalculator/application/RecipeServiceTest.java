@@ -49,7 +49,19 @@ class RecipeServiceTest {
     private static Stream<Arguments> mainTestData() {
         return Stream.of(
                 Arguments.of(List.of(new Ingredient("test1", 1), new Ingredient("test2", 2)), 1, 1, 5, new ArrayList<>(), 2L),
-                Arguments.of(List.of(new Ingredient("test1", 1), new Ingredient("test2", 2)), 1, 1, 5, new ArrayList<>(), 2L)
+                Arguments.of(List.of(
+                        new Ingredient("test3", 1),
+                        new Ingredient("test4", 2),
+                        new Ingredient("test5", 3)),
+                        2, 4, 100, new ArrayList<>(), 2L),
+                Arguments.of(List.of(
+                        new Ingredient("test1", 4),
+                        new Ingredient("test2", 2),
+                        new Ingredient("test3", 6),
+                        new Ingredient("test4", 3),
+                        new Ingredient("test5", 1)),
+                        2, 4, 100, new ArrayList<>(), 9L
+                )
         );
     }
 
