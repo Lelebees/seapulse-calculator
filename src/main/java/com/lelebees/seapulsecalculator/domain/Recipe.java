@@ -32,6 +32,6 @@ public class Recipe extends ArrayList<Ingredient> {
 
     @Override
     public String toString() {
-        return new StringBuilder().append(super.toString()).append(": ").append(getSumOfValues()).append("\n").toString();
+        return new StringBuilder().append(super.toString()).append(": ").append(getSumOfValues()).toString();
     }
 }

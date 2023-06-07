@@ -13,15 +13,11 @@ import java.util.List;
 
 public class RecipeServiceBenchmark {
 
-    Path originalPath = Path.of("data/originalOut.txt");
-    Path experimentPath = Path.of("data/experimentOut.txt");
-
-
     @Benchmark
     @Fork(value = 1, warmups = 2)
     @BenchmarkMode(Mode.Throughput)
     public void original(Context context) throws IOException {
-        try (FileWriter writer = new FileWriter(originalPath.toString())) {
+        try (FileWriter writer = new FileWriter(context.originalPath.toString())) {
             context.original.setOutputWriter(writer);
             context.original.findCombinations();
         }
@@ -31,7 +27,7 @@ public class RecipeServiceBenchmark {
     @Fork(value = 1, warmups = 2)
     @BenchmarkMode(Mode.Throughput)
     public void experiment(Context context) throws IOException {
-        try (FileWriter writer = new FileWriter(experimentPath.toString())) {
+        try (FileWriter writer = new FileWriter(context.experimentPath.toString())) {
             context.experiment.setOutputWriter(writer);
             context.experiment.findCombinations();
         }
@@ -39,6 +35,9 @@ public class RecipeServiceBenchmark {
 
     @State(Scope.Benchmark)
     public static class Context {
+
+        public Path originalPath = Path.of("data/originalOut.txt");
+        public Path experimentPath = Path.of("data/experimentOut.txt");
 
         public OriginalRecipeService original;
         public ExperimentRecipeService experiment;
@@ -54,8 +53,6 @@ public class RecipeServiceBenchmark {
 
         @TearDown(Level.Trial)
         public void tearDown() throws IOException {
-            Path originalPath = Path.of("data/originalOut.txt");
-            Path experimentPath = Path.of("data/experimentOut.txt");
             Files.deleteIfExists(originalPath);
             Files.deleteIfExists(experimentPath);
         }
