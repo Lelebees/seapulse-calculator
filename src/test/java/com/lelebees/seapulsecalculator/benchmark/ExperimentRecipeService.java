@@ -35,7 +35,6 @@ public class ExperimentRecipeService {
         this.maxValue = maxValue;
         this.whiteList = whitelist;
         this.iteration = BigInteger.ZERO;
-//        this.fileWriter = fileWriter;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
@@ -63,12 +62,12 @@ public class ExperimentRecipeService {
         logger.info("Expected amount of calculations: " + totalResults);
 
         if (requestedAmountOfIngredients == 0) {
-            fileWriter.write(List.of(new Recipe(whiteList)).toString());
+            writeRecipe(new Recipe(whiteList));
             finish();
             return;
         } else if (requestedAmountOfIngredients == ingredientList.size()) {
             ingredientList.addAll(whiteList);
-            fileWriter.write(List.of(new Recipe(ingredientList)).toString());
+            writeRecipe(new Recipe(ingredientList));
             finish();
             return;
         }
@@ -130,7 +129,7 @@ public class ExperimentRecipeService {
         int valSum = tempRecipe.getSumOfValues();
         if (valSum >= minValue && valSum <= maxValue) {
             tempRecipe.addAll(whiteList);
-            fileWriter.append(tempRecipe.toString());
+            writeRecipe(tempRecipe);
         }
 
         updateProgress();
@@ -148,5 +147,13 @@ public class ExperimentRecipeService {
 
     public void setOutputWriter(FileWriter writer) {
         this.fileWriter = writer;
+    }
+
+    private void writeRecipe(Recipe recipe) throws IOException {
+        write(recipe.toString());
+    }
+
+    private void write(String text) throws IOException {
+        fileWriter.append(text);
     }
 }
