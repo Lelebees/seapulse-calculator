@@ -154,6 +154,7 @@ public class RecipeService {
     }
 
     private void write(String text) throws IOException {
-        fileWriter.append(text);
+        //noinspection StringConcatenationInsideStringBufferAppend
+        fileWriter.append(text + "\n");
     }
 }
