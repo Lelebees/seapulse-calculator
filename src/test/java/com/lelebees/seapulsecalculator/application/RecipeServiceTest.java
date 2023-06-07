@@ -26,13 +26,13 @@ class RecipeServiceTest {
     @Test
     @DisplayName("Calculation cannot start if ingredients < 0")
     public void throwsIfLessThen0() {
-        assertThrows(IngredientsOutOfBoundsException.class, () -> new RecipeService(new ArrayList<>(), -1, 1, 1, new ArrayList<>(), new FileWriter("data/output.txt")));
+        assertThrows(IngredientsOutOfBoundsException.class, () -> new RecipeService(new ArrayList<>(), -1, 1, 1, new ArrayList<>()));
     }
 
     @Test
     @DisplayName("Calculation can start if ingredients = 0")
     public void doesNotThrowIf0() {
-        assertDoesNotThrow(() -> new RecipeService(new ArrayList<>(), 0, 1, 1, new ArrayList<>(), new FileWriter("data/output.txt")));
+        assertDoesNotThrow(() -> new RecipeService(new ArrayList<>(), 0, 1, 1, new ArrayList<>()));
     }
 
     @ParameterizedTest
@@ -41,7 +41,8 @@ class RecipeServiceTest {
     void calcWorks(List<Ingredient> ingredientList, int amount, int min, int max, List<Ingredient> whiteList, long expectedSize) throws IOException {
 
         FileWriter fileWriter = new FileWriter(path.toString());
-        RecipeService recipeService = new RecipeService(ingredientList, amount, min, max, whiteList, fileWriter);
+        RecipeService recipeService = new RecipeService(ingredientList, amount, min, max, whiteList);
+        recipeService.setOutputWriter(fileWriter);
         recipeService.findCombinations();
         assertEquals(expectedSize, Files.lines(path).count());
     }

@@ -23,24 +23,23 @@ public class RecipeService {
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
-    private final FileWriter fileWriter;
-    private long iteration;
+    private FileWriter fileWriter;
+    private BigInteger iteration;
 
 
-    public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, FileWriter fileWriter) {
+    public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) {
         this.ingredientList = ingredientList;
         this.requestedAmountOfIngredients = requestedAmountOfIngredients;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.whiteList = whitelist;
-        this.iteration = 0;
-        this.fileWriter = fileWriter;
+        this.iteration = BigInteger.ZERO;
+//        this.fileWriter = fileWriter;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
             throw new IngredientsOutOfBoundsException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
         }
-
         // (iList.size()!) / (amnt! * (iList.size() - amnt)!)
         this.totalResults = (BigIntegerMath.factorial(ingredientList.size())
                 .divide(BigIntegerMath.factorial(requestedAmountOfIngredients)
@@ -100,8 +99,8 @@ public class RecipeService {
     }
 
     private void updateProgress() {
-        iteration++;
-        progress.set((double) iteration / totalResults.doubleValue());
+        iteration = iteration.add(BigInteger.ONE);
+        progress.set(iteration.doubleValue() / totalResults.doubleValue());
     }
 
     private void finish() throws IOException {
@@ -113,12 +112,11 @@ public class RecipeService {
     /**
      * This function decides if we want to keep the generated option
      *
-     * @param ingredients the selected indexes
+     * @param ingredients the selected ingredients
      * @throws IOException if output.txt cannot be written to
      */
     private void testCombination(List<Ingredient> ingredients) throws IOException {
         Recipe tempRecipe = new Recipe(ingredients);
-
         int valSum = tempRecipe.getSumOfValues();
         if (valSum >= minValue && valSum <= maxValue) {
             tempRecipe.addAll(whiteList);
@@ -136,5 +134,9 @@ public class RecipeService {
 
     public ReadOnlyDoubleProperty progressProperty() {
         return progress;
+    }
+
+    public void setOutputWriter(FileWriter writer) {
+        this.fileWriter = writer;
     }
 }

@@ -86,7 +86,8 @@ public class CalculatorView {
         Task<Void> calculateOptions = new Task<>() {
             @Override
             protected Void call() throws IOException {
-                RecipeService rService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients, new FileWriter("data/output.txt"));
+                RecipeService rService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients);
+                rService.setOutputWriter(new FileWriter("data/output.txt"));
                 rService.progressProperty().addListener((obs, oldProgress, newProgress) ->
                         updateProgress(newProgress.doubleValue(), 1));
                 rService.findCombinations();
