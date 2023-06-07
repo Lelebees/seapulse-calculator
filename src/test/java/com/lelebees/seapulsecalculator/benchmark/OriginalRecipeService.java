@@ -24,18 +24,17 @@ public class OriginalRecipeService {
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
-    private final FileWriter fileWriter;
+    private FileWriter fileWriter;
     private BigInteger iteration;
 
 
-    public OriginalRecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, FileWriter fileWriter) throws IOException {
+    public OriginalRecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) {
         this.ingredientList = ingredientList;
         this.requestedAmountOfIngredients = requestedAmountOfIngredients;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.whiteList = whitelist;
         this.iteration = BigInteger.ZERO;
-        this.fileWriter = fileWriter;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
@@ -110,7 +109,7 @@ public class OriginalRecipeService {
 
         while (move(indexes, ingredientList.size())) {
             testCombination(indexes);
-            System.out.print("\r" + iteration);
+//            System.out.print("\r" + iteration);
         }
         finish();
     }
@@ -154,5 +153,9 @@ public class OriginalRecipeService {
 
     public ReadOnlyDoubleProperty progressProperty() {
         return progress;
+    }
+
+    public void setOutputWriter(FileWriter writer) {
+        this.fileWriter=writer;
     }
 }

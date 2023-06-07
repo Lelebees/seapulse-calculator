@@ -10,9 +10,8 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.lelebees.seapulsecalculator.AppLauncher.logger;
 
@@ -24,18 +23,18 @@ public class ExperimentRecipeService {
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
-    private final FileWriter fileWriter;
+    private FileWriter fileWriter;
     private BigInteger iteration;
 
 
-    public ExperimentRecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, FileWriter fileWriter) throws IOException {
+    public ExperimentRecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) {
         this.ingredientList = ingredientList;
         this.requestedAmountOfIngredients = requestedAmountOfIngredients;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.whiteList = whitelist;
         this.iteration = BigInteger.ZERO;
-        this.fileWriter = fileWriter;
+//        this.fileWriter = fileWriter;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
@@ -51,38 +50,6 @@ public class ExperimentRecipeService {
 
     // Thanks to Yanis MANSOUR's article on https://www.yanismansour.com/articles/20211210-Generate-all-combinations
     // For providing this logic in python format
-
-    /**
-     * This function allows us to iterate over a list and get each unique combination of items
-     *
-     * @param indexes   the indexes to be moved
-     * @param maxLength the length of the list we're iterating over
-     * @return if there are more combinations left.
-     */
-    private boolean move(List<Integer> indexes, int maxLength) {
-        int length = indexes.size();
-        int indexToMove = -1;
-
-        for (int i = 0; i < length; i++) {
-            if (indexes.get(length - 1 - i) >= maxLength) {
-                throw new RuntimeException("Indexes must be less then the max length");
-            }
-            if (indexes.get(length - 1 - i) != maxLength - 1 - i) {
-                indexToMove = length - 1 - i;
-                break;
-            }
-        }
-        if (indexToMove == -1) {
-            return false;
-        }
-
-        Integer index = indexes.get(indexToMove);
-        indexes.set(indexToMove, index + 1);
-        for (int i = indexToMove + 1; i < length; i++) {
-            indexes.set(i, indexes.get(i - 1) + 1);
-        }
-        return true;
-    }
 
     /**
      * this function prepares our list for generation, and then calls the move function to generate all possible combinations
@@ -105,14 +72,30 @@ public class ExperimentRecipeService {
             return;
         }
 
-        List<Integer> indexes = IntStream.range(0, requestedAmountOfIngredients).boxed().collect(Collectors.toList());
-        testCombination(indexes);
+        List<Ingredient> currentCombination = new ArrayList<>();
+        generateCombinations(currentCombination, 0);
 
-        while (move(indexes, ingredientList.size())) {
-            testCombination(indexes);
-            System.out.print("\r" + iteration);
-        }
         finish();
+    }
+
+    /**
+     * Recursive function to generate combinations using backtracking
+     *
+     * @param currentCombination The current combination being generated
+     * @param start              The index to start considering ingredients from
+     * @throws IOException When writing to output file fails
+     */
+    private void generateCombinations(List<Ingredient> currentCombination, int start) throws IOException {
+        if (currentCombination.size() == requestedAmountOfIngredients) {
+            testCombination(currentCombination);
+            return;
+        }
+
+        for (int i = start; i < ingredientList.size(); i++) {
+            currentCombination.add(ingredientList.get(i));
+            generateCombinations(currentCombination, i + 1);
+            currentCombination.remove(currentCombination.size() - 1);
+        }
     }
 
     private void updateProgress() {
@@ -129,14 +112,11 @@ public class ExperimentRecipeService {
     /**
      * This function decides if we want to keep the generated option
      *
-     * @param indexes the selected indexes
+     * @param ingredients the selected ingredients
      * @throws IOException if output.txt cannot be written to
      */
-    private void testCombination(List<Integer> indexes) throws IOException {
-        Recipe tempRecipe = new Recipe();
-        // Select the ingredients
-        indexes.stream().map(ingredientList::get).forEach(tempRecipe::add);
-
+    private void testCombination(List<Ingredient> ingredients) throws IOException {
+        Recipe tempRecipe = new Recipe(ingredients);
         int valSum = tempRecipe.getSumOfValues();
         if (valSum >= minValue && valSum <= maxValue) {
             tempRecipe.addAll(whiteList);
@@ -154,5 +134,9 @@ public class ExperimentRecipeService {
 
     public ReadOnlyDoubleProperty progressProperty() {
         return progress;
+    }
+
+    public void setOutputWriter(FileWriter writer) {
+        this.fileWriter = writer;
     }
 }
