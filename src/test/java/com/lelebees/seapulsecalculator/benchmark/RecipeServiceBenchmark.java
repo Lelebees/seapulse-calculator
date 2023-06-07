@@ -6,15 +6,22 @@ import org.openjdk.jmh.annotations.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeServiceBenchmark {
+
+    Path originalPath = Path.of("data/originalOut.txt");
+    Path experimentPath = Path.of("data/experimentOut.txt");
+
+
     @Benchmark
     @Fork(value = 1, warmups = 2)
     @BenchmarkMode(Mode.Throughput)
     public void original(Context context) throws IOException {
-        try (FileWriter writer = new FileWriter("data/originalOut.txt")) {
+        try (FileWriter writer = new FileWriter(originalPath.toString())) {
             context.original.setOutputWriter(writer);
             context.original.findCombinations();
         }
@@ -24,7 +31,7 @@ public class RecipeServiceBenchmark {
     @Fork(value = 1, warmups = 2)
     @BenchmarkMode(Mode.Throughput)
     public void experiment(Context context) throws IOException {
-        try (FileWriter writer = new FileWriter("data/experimentOut.txt")) {
+        try (FileWriter writer = new FileWriter(experimentPath.toString())) {
             context.experiment.setOutputWriter(writer);
             context.experiment.findCombinations();
         }
@@ -43,6 +50,14 @@ public class RecipeServiceBenchmark {
             List<Ingredient> ingredients = IngredientService.getIngredients();
             this.original = new OriginalRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>());
             this.experiment = new ExperimentRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>());
+        }
+
+        @TearDown(Level.Trial)
+        public void tearDown() throws IOException {
+            Path originalPath = Path.of("data/originalOut.txt");
+            Path experimentPath = Path.of("data/experimentOut.txt");
+            Files.deleteIfExists(originalPath);
+            Files.deleteIfExists(experimentPath);
         }
     }
 

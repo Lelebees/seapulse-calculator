@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.lelebees.seapulsecalculator.AppLauncher.logger;
 
@@ -72,8 +73,17 @@ public class ExperimentRecipeService {
             return;
         }
 
-        List<Ingredient> currentCombination = new ArrayList<>();
-        generateCombinations(currentCombination, 0);
+        IntStream.range(0, ingredientList.size())
+                .parallel()
+                .forEach(i -> {
+                    List<Ingredient> currentCombination = new ArrayList<>();
+                    currentCombination.add(ingredientList.get(i));
+                    try {
+                        generateCombinations(currentCombination, i + 1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
         finish();
     }
