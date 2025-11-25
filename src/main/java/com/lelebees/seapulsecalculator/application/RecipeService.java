@@ -5,6 +5,8 @@ import com.lelebees.seapulsecalculator.domain.Ingredient;
 import com.lelebees.seapulsecalculator.domain.IngredientsOutOfBoundsException;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -13,41 +15,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static com.lelebees.seapulsecalculator.AppLauncher.logger;
-
 public class RecipeService {
+    private static final Logger logger = LogManager.getLogger(RecipeService.class);
+
     private final List<Ingredient> ingredientList;
-    private final int requestedAmountOfIngredients;
-    private final int minValue;
-    private final int maxValue;
+    private final int numberOfIngredientsWithoutWhitelist;
+    private final int minValueWithoutWhitelist;
+    private final int maxValueWithoutWhitelist;
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
-    private final BigInteger totalResults;
+    private final int whiteListValue;
+    private final int maxIngredientValue;
+    private final int minIngredientValue;
+    private BigInteger totalResults;
     private final Writer fileWriter;
     private BigInteger iteration;
-    private final int whiteListValue;
 
 
     public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, Writer writer) {
         this.ingredientList = ingredientList;
         this.whiteList = whitelist;
-        this.requestedAmountOfIngredients = requestedAmountOfIngredients - whitelist.size();
-        this.whiteListValue = whitelist.stream().mapToInt(Ingredient::getValue).sum();
-        this.minValue = minValue - whiteListValue;
-        this.maxValue = maxValue - whiteListValue;
-        this.iteration = BigInteger.ZERO;
         this.fileWriter = writer;
+        this.iteration = BigInteger.ZERO;
+
+        this.numberOfIngredientsWithoutWhitelist = requestedAmountOfIngredients - whitelist.size();
+        this.whiteListValue = whitelist.stream().mapToInt(Ingredient::getValue).sum();
+        this.minValueWithoutWhitelist = minValue - whiteListValue;
+        this.maxValueWithoutWhitelist = maxValue - whiteListValue;
+
+        this.maxIngredientValue = ingredientList.stream().mapToInt(Ingredient::getValue).max().orElseThrow();
+        this.minIngredientValue = ingredientList.stream().mapToInt(Ingredient::getValue).min().orElseThrow();
 
         logger.debug("Checking if we can start calculation...");
-        if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
-            throw new IngredientsOutOfBoundsException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
+        if (numberOfIngredientsWithoutWhitelist < 0 || numberOfIngredientsWithoutWhitelist > ingredientList.size()) {
+            throw new IngredientsOutOfBoundsException("the requested amount of ingredients (" + requestedAmountOfIngredients + ") must be equal to or higher then the amount of whitelisted ingredients (" + whitelist.size() + ") and less than or equal to the total number of ingredients (" + (ingredientList.size() + whitelist.size()) + ")");
         }
-
-        this.totalResults = (BigIntegerMath.factorial(ingredientList.size())
-                .divide(BigIntegerMath.factorial(requestedAmountOfIngredients)
-                        .multiply(BigIntegerMath.factorial(ingredientList.size() - requestedAmountOfIngredients))
-                )
-        );
+        this.totalResults = calculateNumberOfPossibleCombinations(ingredientList.size(), numberOfIngredientsWithoutWhitelist);
     }
 
     // Thanks to Yanis MANSOUR's article on https://www.yanismansour.com/articles/20211210-Generate-all-combinations
@@ -61,20 +64,24 @@ public class RecipeService {
      */
     public void findCombinations() throws IOException {
         logger.debug("Calculation starting");
+        if (maxValueWithoutWhitelist < 0) {
+            logger.info("Whitelist value ({}) is higher then the maximum value ({}), therefore there are no valid combinations.", whiteListValue, maxValueWithoutWhitelist + whiteListValue);
+            return;
+        }
         logger.info("Expected amount of calculations: {}", totalResults);
         try {
-            if (requestedAmountOfIngredients == 0) {
+
+            if (numberOfIngredientsWithoutWhitelist == 0 || maxValueWithoutWhitelist == 0) {
                 writeRecipe(whiteList);
                 return;
             }
-            if (requestedAmountOfIngredients == ingredientList.size()) {
+            if (numberOfIngredientsWithoutWhitelist == ingredientList.size()) {
                 ingredientList.addAll(whiteList);
                 writeRecipe(ingredientList);
                 return;
             }
 
             IntStream.range(0, ingredientList.size())
-                    .parallel()
                     .forEach(i -> {
                         List<Ingredient> currentCombination = new ArrayList<>();
                         currentCombination.add(ingredientList.get(i));
@@ -99,7 +106,23 @@ public class RecipeService {
      * @throws IOException When writing to output file fails
      */
     private void generateCombinations(List<Ingredient> currentCombination, int start) throws IOException {
-        if (currentCombination.size() == requestedAmountOfIngredients) {
+        int currentSum = currentCombination.stream().mapToInt(Ingredient::getValue).sum();
+        if (currentCombination.size() < numberOfIngredientsWithoutWhitelist && currentSum + minIngredientValue > maxValueWithoutWhitelist) {
+            int numberOfIngredientsLeft = ingredientList.size() - (currentCombination.size());
+            int numberOfIngredientsNotInRecipe = numberOfIngredientsWithoutWhitelist - currentCombination.size();
+            totalResults = totalResults.subtract(calculateNumberOfPossibleCombinations(numberOfIngredientsLeft, numberOfIngredientsNotInRecipe));
+            updateProgress();
+            return;
+        }
+
+        if (currentCombination.size() == numberOfIngredientsWithoutWhitelist - 1 && currentSum + maxIngredientValue < minValueWithoutWhitelist) {
+            int numberOfIngredientsLeft = ingredientList.size() - currentCombination.size();
+            totalResults = totalResults.subtract(calculateNumberOfPossibleCombinations(numberOfIngredientsLeft, 1));
+            updateProgress();
+            return;
+        }
+
+        if (currentCombination.size() == numberOfIngredientsWithoutWhitelist) {
             testCombination(currentCombination);
             return;
         }
@@ -113,8 +136,7 @@ public class RecipeService {
 
     private void updateProgress() {
         iteration = iteration.add(BigInteger.ONE);
-        if (iteration.mod(BigInteger.valueOf(1000)).equals(BigInteger.ZERO))
-        {
+        if (iteration.mod(BigInteger.valueOf(1000)).equals(BigInteger.ZERO)) {
             progress.set(iteration.doubleValue() / totalResults.doubleValue());
         }
     }
@@ -127,7 +149,7 @@ public class RecipeService {
      */
     private void testCombination(List<Ingredient> ingredients) throws IOException {
         int sumOfValues = ingredients.stream().mapToInt(Ingredient::getValue).sum();
-        if (sumOfValues < minValue || sumOfValues > maxValue) {
+        if (sumOfValues < minValueWithoutWhitelist || sumOfValues > maxValueWithoutWhitelist) {
             return;
         }
         ingredients.addAll(whiteList);
@@ -151,5 +173,14 @@ public class RecipeService {
 
     private void write(String text) throws IOException {
         fileWriter.append(text).append("\n");
+    }
+
+    private BigInteger calculateNumberOfPossibleCombinations(int numberOfItems, int numberOfElementsPerSet){
+        // r = n! / (k! * (n - k)!), where r is total results, n is the number of available ingredients, and k is the number of ingredients per result
+        return (BigIntegerMath.factorial(numberOfItems)
+                .divide(
+                        BigIntegerMath.factorial(numberOfElementsPerSet).multiply(BigIntegerMath.factorial(numberOfItems - numberOfElementsPerSet))
+                )
+        );
     }
 }

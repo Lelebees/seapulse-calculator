@@ -3,6 +3,8 @@ package com.lelebees.seapulsecalculator.data;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -10,9 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.lelebees.seapulsecalculator.AppLauncher.logger;
-
 public class JSONReader {
+    private static final Logger logger = LogManager.getLogger(JSONReader.class);
 
     public static List<Ingredient> Read() throws IOException {
         Gson gson = new Gson();

@@ -5,6 +5,8 @@ import com.lelebees.seapulsecalculator.domain.Ingredient;
 import com.lelebees.seapulsecalculator.domain.IngredientsOutOfBoundsException;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -13,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static com.lelebees.seapulsecalculator.AppLauncher.logger;
-
 public class ExperimentRecipeService {
+    private final static Logger logger = LogManager.getLogger(ExperimentRecipeService.class);
+
     private final List<Ingredient> ingredientList;
     private final int numberOfIngredientsWithoutWhitelist;
     private final int minValueWithoutWhitelist;
@@ -104,6 +106,10 @@ public class ExperimentRecipeService {
      * @throws IOException When writing to output file fails
      */
     private void generateCombinations(List<Ingredient> currentCombination, int start) throws IOException {
+        if (currentCombination.stream().mapToInt(Ingredient::getValue).sum() > maxValueWithoutWhitelist) {
+            updateProgress();
+            return;
+        }
         if (currentCombination.size() == numberOfIngredientsWithoutWhitelist) {
             testCombination(currentCombination);
             return;

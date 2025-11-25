@@ -7,6 +7,8 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -16,9 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.lelebees.seapulsecalculator.AppLauncher.logger;
-
 public class CalculatorView {
+    private final static Logger logger = LogManager.getLogger(CalculatorView.class);
     Map<ListView<Ingredient>, List<Button>> listButtons;
     List<Button> whiteListRemoveButtons;
     List<Button> blackListRemoveButtons;
