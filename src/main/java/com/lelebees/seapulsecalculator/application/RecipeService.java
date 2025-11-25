@@ -9,6 +9,7 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,23 +25,24 @@ public class RecipeService {
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
-    private FileWriter fileWriter;
+    private final Writer fileWriter;
     private BigInteger iteration;
 
 
-    public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) {
+    public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, Writer writer) {
         this.ingredientList = ingredientList;
         this.requestedAmountOfIngredients = requestedAmountOfIngredients;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.whiteList = whitelist;
         this.iteration = BigInteger.ZERO;
+        this.fileWriter = writer;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
             throw new IngredientsOutOfBoundsException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
         }
-        // (iList.size()!) / (amnt! * (iList.size() - amnt)!)
+
         this.totalResults = (BigIntegerMath.factorial(ingredientList.size())
                 .divide(BigIntegerMath.factorial(requestedAmountOfIngredients)
                         .multiply(BigIntegerMath.factorial(ingredientList.size() - requestedAmountOfIngredients))
@@ -139,10 +141,6 @@ public class RecipeService {
 
     public ReadOnlyDoubleProperty progressProperty() {
         return progress;
-    }
-
-    public void setOutputWriter(FileWriter writer) {
-        this.fileWriter = writer;
     }
 
     private void writeRecipe(Recipe recipe) throws IOException {

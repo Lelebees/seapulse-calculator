@@ -9,8 +9,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -26,13 +28,13 @@ class ExperimentRecipeServiceTest {
     @Test
     @DisplayName("Calculation cannot start if ingredients < 0")
     public void throwsIfLessThen0() {
-        assertThrows(IngredientsOutOfBoundsException.class, () -> new ExperimentRecipeService(new ArrayList<>(), -1, 1, 1, new ArrayList<>()));
+        assertThrows(IngredientsOutOfBoundsException.class, () -> new ExperimentRecipeService(new ArrayList<>(), -1, 1, 1, new ArrayList<>(), null));
     }
 
     @Test
     @DisplayName("Calculation can start if ingredients = 0")
     public void doesNotThrowIf0() {
-        assertDoesNotThrow(() -> new ExperimentRecipeService(new ArrayList<>(), 0, 1, 1, new ArrayList<>()));
+        assertDoesNotThrow(() -> new ExperimentRecipeService(new ArrayList<>(), 0, 1, 1, new ArrayList<>(), null));
     }
 
     @ParameterizedTest
@@ -40,9 +42,8 @@ class ExperimentRecipeServiceTest {
     @MethodSource("mainTestData")
     void calcWorks(List<Ingredient> ingredientList, int amount, int min, int max, List<Ingredient> whiteList, long expectedSize) throws IOException {
 
-        FileWriter fileWriter = new FileWriter(path.toString());
-        ExperimentRecipeService recipeService = new ExperimentRecipeService(ingredientList, amount, min, max, whiteList);
-        recipeService.setOutputWriter(fileWriter);
+        Writer fileWriter = new BufferedWriter(new FileWriter(path.toString()));
+        ExperimentRecipeService recipeService = new ExperimentRecipeService(ingredientList, amount, min, max, whiteList, fileWriter);
         recipeService.findCombinations();
         assertEquals(expectedSize, Files.lines(path).count());
     }

@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Comparator;
@@ -61,10 +62,9 @@ public class CalculatorView {
         listButtons.put(whiteListView, whiteListRemoveButtons);
         listButtons.put(blackListView, blackListRemoveButtons);
 
-        IngredientService iService = new IngredientService();
-        iService.getData();
+        IngredientService ingredientService = new IngredientService();
         logger.debug("Writing to visual components...");
-        ingredientsListView.setItems(FXCollections.observableArrayList(IngredientService.getIngredients()));
+        ingredientsListView.setItems(FXCollections.observableArrayList(ingredientService.getIngredients()));
         progressBar.setProgress(0);
         amountOfIngredientsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, ingredientsListView.getItems().size() + whiteListView.getItems().size()));
     }
@@ -86,11 +86,10 @@ public class CalculatorView {
         Task<Void> calculateOptions = new Task<>() {
             @Override
             protected Void call() throws IOException {
-                RecipeService rService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients);
-                rService.setOutputWriter(new FileWriter("data/output.txt"));
-                rService.progressProperty().addListener((obs, oldProgress, newProgress) ->
+                RecipeService recipeService = new RecipeService(ingredients, amountOfIngredients, minValue, maxValue, whiteListIngredients, new BufferedWriter(new FileWriter("data/output.txt")));
+                recipeService.progressProperty().addListener((obs, oldProgress, newProgress) ->
                         updateProgress(newProgress.doubleValue(), 1));
-                rService.findCombinations();
+                recipeService.findCombinations();
                 startButton.setDisable(false);
                 return null;
             }

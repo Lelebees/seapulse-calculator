@@ -4,8 +4,10 @@ import com.lelebees.seapulsecalculator.application.IngredientService;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
 import org.openjdk.jmh.annotations.*;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -27,10 +29,7 @@ public class RecipeServiceBenchmark {
     @Fork(value = 1, warmups = 2)
     @BenchmarkMode(Mode.Throughput)
     public void experiment(Context context) throws IOException {
-        try (FileWriter writer = new FileWriter(context.experimentPath.toString())) {
-            context.experiment.setOutputWriter(writer);
-            context.experiment.findCombinations();
-        }
+        context.experiment.findCombinations();
     }
 
     @State(Scope.Benchmark)
@@ -44,11 +43,10 @@ public class RecipeServiceBenchmark {
 
         @Setup(Level.Trial)
         public void setup() throws IOException {
-            IngredientService iService = new IngredientService();
-            iService.getData();
-            List<Ingredient> ingredients = IngredientService.getIngredients();
+            IngredientService ingredientService = new IngredientService();
+            List<Ingredient> ingredients = ingredientService.getIngredients();
             this.original = new OriginalRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>());
-            this.experiment = new ExperimentRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>());
+            this.experiment = new ExperimentRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>(), new BufferedWriter(new FileWriter(experimentPath.toString())));
         }
 
         @TearDown(Level.Trial)

@@ -7,13 +7,21 @@ import java.io.IOException;
 import java.util.List;
 
 public class IngredientService {
-    private static List<Ingredient> ingredients;
+    private List<Ingredient> ingredients;
 
-    public static List<Ingredient> getIngredients() {
+    public IngredientService(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public IngredientService() throws IOException {
+        getData();
+    }
+
+    public List<Ingredient> getIngredients() {
         return ingredients;
     }
 
-    public void getData() throws IOException {
+    private void getData() throws IOException {
         ingredients = JSONReader.Read();
     }
 }
