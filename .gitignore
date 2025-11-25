@@ -38,6 +38,7 @@ build/
 .DS_Store
 
 ### Generated Files ###
-output.txt
 logs/
 out/
+data/
+!data/Ingredients.json
