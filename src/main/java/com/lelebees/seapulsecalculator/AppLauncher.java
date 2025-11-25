@@ -3,6 +3,8 @@ package com.lelebees.seapulsecalculator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -14,6 +16,10 @@ public class AppLauncher {
         //Generate a log file to write logs to.
         LocalDateTime currentTime = LocalDateTime.now();
         String timeString = currentTime.format(DateTimeFormatter.ofPattern("yyy-MM-dd_HH-mm-ss"));
+        Path logDirectory = Path.of("logs/");
+        if(!Files.exists(logDirectory)){
+            Files.createDirectory(logDirectory);
+        }
         File logFile = new File("logs/"+timeString+".txt");
         logger = new FileWriter(logFile);
         log("Starting Logging!");
