@@ -19,8 +19,9 @@ public class RecipeServiceBenchmark {
     @Fork(value = 1, warmups = 2)
     @BenchmarkMode(Mode.Throughput)
     public void original(Context context) throws IOException {
-        try (FileWriter writer = new FileWriter(context.originalPath.toString())) {
-            context.original.setOutputWriter(writer);
+        // If we don't try with resources, the stream closes.
+        try (Writer writer = new BufferedWriter(new FileWriter(context.originalPath.toString()))) {
+            context.original.setFileWriter(writer);
             context.original.findCombinations();
         }
     }
@@ -29,7 +30,11 @@ public class RecipeServiceBenchmark {
     @Fork(value = 1, warmups = 2)
     @BenchmarkMode(Mode.Throughput)
     public void experiment(Context context) throws IOException {
-        context.experiment.findCombinations();
+        // If we don't try with resources, the stream closes.
+        try (Writer writer = new BufferedWriter(new FileWriter(context.experimentPath.toString()))) {
+            context.experiment.setFileWriter(writer);
+            context.experiment.findCombinations();
+        }
     }
 
     @State(Scope.Benchmark)
@@ -45,8 +50,8 @@ public class RecipeServiceBenchmark {
         public void setup() throws IOException {
             IngredientService ingredientService = new IngredientService();
             List<Ingredient> ingredients = ingredientService.getIngredients();
-            this.original = new OriginalRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>());
-            this.experiment = new ExperimentRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>(), new BufferedWriter(new FileWriter(experimentPath.toString())));
+            this.original = new OriginalRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>(), Writer.nullWriter());
+            this.experiment = new ExperimentRecipeService(new ArrayList<>(ingredients), 3, 1, 50, new ArrayList<>(), Writer.nullWriter());
         }
 
         @TearDown(Level.Trial)

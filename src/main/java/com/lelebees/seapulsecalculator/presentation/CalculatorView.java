@@ -78,10 +78,9 @@ public class CalculatorView {
         List<Ingredient> ingredients = ingredientsListView.getItems();
         List<Ingredient> whiteListIngredients = whiteListView.getItems();
 
-        int amountOfIngredients = amountOfIngredientsInput.getValue() - whiteListIngredients.size();
-        int whiteListValue = whiteListIngredients.stream().mapToInt(Ingredient::getValue).sum();
-        int minValue = totalValueInput.getValue() - whiteListValue;
-        int maxValue = maxValueInput.getValue() - whiteListValue;
+        int amountOfIngredients = amountOfIngredientsInput.getValue();
+        int minValue = totalValueInput.getValue();
+        int maxValue = maxValueInput.getValue();
         logger.info("Preparing calculation with ingredients: " + ingredients + "; amount: " + amountOfIngredients + "; min:" + minValue + "; max:" + maxValue + "; whitelist: " + whiteListIngredients);
         Task<Void> calculateOptions = new Task<>() {
             @Override

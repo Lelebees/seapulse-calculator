@@ -3,11 +3,9 @@ package com.lelebees.seapulsecalculator.application;
 import com.google.common.math.BigIntegerMath;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
 import com.lelebees.seapulsecalculator.domain.IngredientsOutOfBoundsException;
-import com.lelebees.seapulsecalculator.domain.Recipe;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigInteger;
@@ -27,14 +25,16 @@ public class RecipeService {
     private final BigInteger totalResults;
     private final Writer fileWriter;
     private BigInteger iteration;
+    private final int whiteListValue;
 
 
     public RecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, Writer writer) {
         this.ingredientList = ingredientList;
-        this.requestedAmountOfIngredients = requestedAmountOfIngredients;
-        this.minValue = minValue;
-        this.maxValue = maxValue;
         this.whiteList = whitelist;
+        this.requestedAmountOfIngredients = requestedAmountOfIngredients - whitelist.size();
+        this.whiteListValue = whitelist.stream().mapToInt(Ingredient::getValue).sum();
+        this.minValue = minValue - whiteListValue;
+        this.maxValue = maxValue - whiteListValue;
         this.iteration = BigInteger.ZERO;
         this.fileWriter = writer;
 
@@ -64,12 +64,12 @@ public class RecipeService {
         logger.info("Expected amount of calculations: {}", totalResults);
         try {
             if (requestedAmountOfIngredients == 0) {
-                writeRecipe(new Recipe(whiteList));
+                writeRecipe(whiteList);
                 return;
             }
             if (requestedAmountOfIngredients == ingredientList.size()) {
                 ingredientList.addAll(whiteList);
-                writeRecipe(new Recipe(ingredientList));
+                writeRecipe(ingredientList);
                 return;
             }
 
@@ -113,7 +113,10 @@ public class RecipeService {
 
     private void updateProgress() {
         iteration = iteration.add(BigInteger.ONE);
-        progress.set(iteration.doubleValue() / totalResults.doubleValue());
+        if (iteration.mod(BigInteger.valueOf(1000)).equals(BigInteger.ZERO))
+        {
+            progress.set(iteration.doubleValue() / totalResults.doubleValue());
+        }
     }
 
     /**
@@ -123,13 +126,12 @@ public class RecipeService {
      * @throws IOException if output.txt cannot be written to
      */
     private void testCombination(List<Ingredient> ingredients) throws IOException {
-        Recipe tempRecipe = new Recipe(ingredients);
-        int valSum = tempRecipe.getSumOfValues();
-        if (valSum < minValue || valSum > maxValue) {
+        int sumOfValues = ingredients.stream().mapToInt(Ingredient::getValue).sum();
+        if (sumOfValues < minValue || sumOfValues > maxValue) {
             return;
         }
-        tempRecipe.addAll(whiteList);
-        writeRecipe(tempRecipe);
+        ingredients.addAll(whiteList);
+        write(ingredients + ": " + (sumOfValues + whiteListValue));
         updateProgress();
     }
 
@@ -143,8 +145,8 @@ public class RecipeService {
         return progress;
     }
 
-    private void writeRecipe(Recipe recipe) throws IOException {
-        write(recipe.toString());
+    private void writeRecipe(List<Ingredient> ingredients) throws IOException {
+        write(ingredients + ": " + ingredients.stream().mapToInt(Ingredient::getValue).sum());
     }
 
     private void write(String text) throws IOException {

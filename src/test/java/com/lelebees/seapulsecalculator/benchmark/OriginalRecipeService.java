@@ -3,12 +3,11 @@ package com.lelebees.seapulsecalculator.benchmark;
 import com.google.common.math.BigIntegerMath;
 import com.lelebees.seapulsecalculator.domain.Ingredient;
 import com.lelebees.seapulsecalculator.domain.IngredientsOutOfBoundsException;
-import com.lelebees.seapulsecalculator.domain.Recipe;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,23 +23,26 @@ public class OriginalRecipeService {
     private final List<Ingredient> whiteList;
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private final BigInteger totalResults;
-    private FileWriter fileWriter;
+    private Writer fileWriter;
     private BigInteger iteration;
+    private final int whiteListValue;
 
 
-    public OriginalRecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist) {
+    public OriginalRecipeService(List<Ingredient> ingredientList, int requestedAmountOfIngredients, int minValue, int maxValue, List<Ingredient> whitelist, Writer writer) {
         this.ingredientList = ingredientList;
-        this.requestedAmountOfIngredients = requestedAmountOfIngredients;
-        this.minValue = minValue;
-        this.maxValue = maxValue;
         this.whiteList = whitelist;
+        this.requestedAmountOfIngredients = requestedAmountOfIngredients - whitelist.size();
+        this.whiteListValue = whitelist.stream().mapToInt(Ingredient::getValue).sum();
+        this.minValue = minValue - whiteListValue;
+        this.maxValue = maxValue - whiteListValue;
         this.iteration = BigInteger.ZERO;
+        this.fileWriter = writer;
 
         logger.debug("Checking if we can start calculation...");
         if (requestedAmountOfIngredients < 0 || requestedAmountOfIngredients > ingredientList.size()) {
             throw new IngredientsOutOfBoundsException(requestedAmountOfIngredients + " must be equal to 0 or positive and less than or equal to " + ingredientList.size());
         }
-        // (iList.size()!) / (amnt! * (iList.size() - amnt)!)
+
         this.totalResults = (BigIntegerMath.factorial(ingredientList.size())
                 .divide(BigIntegerMath.factorial(requestedAmountOfIngredients)
                         .multiply(BigIntegerMath.factorial(ingredientList.size() - requestedAmountOfIngredients))
@@ -59,32 +61,34 @@ public class OriginalRecipeService {
      */
     public void findCombinations() throws IOException {
         logger.debug("Calculation starting");
-        logger.info("Expected amount of calculations: " + totalResults);
+        logger.info("Expected amount of calculations: {}", totalResults);
+        try {
+            if (requestedAmountOfIngredients == 0) {
+                writeRecipe(whiteList);
+                return;
+            }
+            if (requestedAmountOfIngredients == ingredientList.size()) {
+                ingredientList.addAll(whiteList);
+                writeRecipe(ingredientList);
+                return;
+            }
 
-        if (requestedAmountOfIngredients == 0) {
-            writeRecipe(new Recipe(whiteList));
-            finish();
-            return;
-        } else if (requestedAmountOfIngredients == ingredientList.size()) {
-            ingredientList.addAll(whiteList);
-            writeRecipe(new Recipe(ingredientList));
-            finish();
-            return;
+            IntStream.range(0, ingredientList.size())
+                    .parallel()
+                    .forEach(i -> {
+                        List<Ingredient> currentCombination = new ArrayList<>();
+                        currentCombination.add(ingredientList.get(i));
+                        try {
+                            generateCombinations(currentCombination, i + 1);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } finally {
+            logger.debug("Finished calculation");
+            progress.set(1);
+            fileWriter.close();
         }
-
-        IntStream.range(0, ingredientList.size())
-                .parallel()
-                .forEach(i -> {
-                    List<Ingredient> currentCombination = new ArrayList<>();
-                    currentCombination.add(ingredientList.get(i));
-                    try {
-                        generateCombinations(currentCombination, i + 1);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-        finish();
     }
 
     /**
@@ -109,13 +113,10 @@ public class OriginalRecipeService {
 
     private void updateProgress() {
         iteration = iteration.add(BigInteger.ONE);
-        progress.set(iteration.doubleValue() / totalResults.doubleValue());
-    }
-
-    private void finish() throws IOException {
-        logger.debug("Finished calculation");
-        progress.set(1);
-        fileWriter.close();
+        if (iteration.mod(BigInteger.valueOf(1000)).equals(BigInteger.ZERO))
+        {
+            progress.set(iteration.doubleValue() / totalResults.doubleValue());
+        }
     }
 
     /**
@@ -125,13 +126,12 @@ public class OriginalRecipeService {
      * @throws IOException if output.txt cannot be written to
      */
     private void testCombination(List<Ingredient> ingredients) throws IOException {
-        Recipe tempRecipe = new Recipe(ingredients);
-        int valSum = tempRecipe.getSumOfValues();
-        if (valSum >= minValue && valSum <= maxValue) {
-            tempRecipe.addAll(whiteList);
-            writeRecipe(tempRecipe);
+        int sumOfValues = ingredients.stream().mapToInt(Ingredient::getValue).sum();
+        if (sumOfValues < minValue || sumOfValues > maxValue) {
+            return;
         }
-
+        ingredients.addAll(whiteList);
+        write(ingredients + ": " + (sumOfValues + whiteListValue));
         updateProgress();
     }
 
@@ -145,15 +145,15 @@ public class OriginalRecipeService {
         return progress;
     }
 
-    public void setOutputWriter(FileWriter writer) {
-        this.fileWriter = writer;
-    }
-
-    private void writeRecipe(Recipe recipe) throws IOException {
-        write(recipe.toString());
+    private void writeRecipe(List<Ingredient> ingredients) throws IOException {
+        write(ingredients + ": " + ingredients.stream().mapToInt(Ingredient::getValue).sum());
     }
 
     private void write(String text) throws IOException {
-        fileWriter.append(text);
+        fileWriter.append(text).append("\n");
+    }
+
+    public void setFileWriter(Writer fileWriter){
+        this.fileWriter = fileWriter;
     }
 }
