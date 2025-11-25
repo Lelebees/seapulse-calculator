@@ -59,32 +59,34 @@ public class RecipeService {
      */
     public void findCombinations() throws IOException {
         logger.debug("Calculation starting");
-        logger.info("Expected amount of calculations: " + totalResults);
+        logger.info("Expected amount of calculations: {}", totalResults);
+        try {
+            if (requestedAmountOfIngredients == 0) {
+                writeRecipe(new Recipe(whiteList));
+                return;
+            }
+            if (requestedAmountOfIngredients == ingredientList.size()) {
+                ingredientList.addAll(whiteList);
+                writeRecipe(new Recipe(ingredientList));
+                return;
+            }
 
-        if (requestedAmountOfIngredients == 0) {
-            writeRecipe(new Recipe(whiteList));
-            finish();
-            return;
-        } else if (requestedAmountOfIngredients == ingredientList.size()) {
-            ingredientList.addAll(whiteList);
-            writeRecipe(new Recipe(ingredientList));
-            finish();
-            return;
+            IntStream.range(0, ingredientList.size())
+                    .parallel()
+                    .forEach(i -> {
+                        List<Ingredient> currentCombination = new ArrayList<>();
+                        currentCombination.add(ingredientList.get(i));
+                        try {
+                            generateCombinations(currentCombination, i + 1);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } finally {
+            logger.debug("Finished calculation");
+            progress.set(1);
+            fileWriter.close();
         }
-
-        IntStream.range(0, ingredientList.size())
-                .parallel()
-                .forEach(i -> {
-                    List<Ingredient> currentCombination = new ArrayList<>();
-                    currentCombination.add(ingredientList.get(i));
-                    try {
-                        generateCombinations(currentCombination, i + 1);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-        finish();
     }
 
     /**
@@ -112,12 +114,6 @@ public class RecipeService {
         progress.set(iteration.doubleValue() / totalResults.doubleValue());
     }
 
-    private void finish() throws IOException {
-        logger.debug("Finished calculation");
-        progress.set(1);
-        fileWriter.close();
-    }
-
     /**
      * This function decides if we want to keep the generated option
      *
@@ -127,11 +123,11 @@ public class RecipeService {
     private void testCombination(List<Ingredient> ingredients) throws IOException {
         Recipe tempRecipe = new Recipe(ingredients);
         int valSum = tempRecipe.getSumOfValues();
-        if (valSum >= minValue && valSum <= maxValue) {
-            tempRecipe.addAll(whiteList);
-            writeRecipe(tempRecipe);
+        if (valSum < minValue || valSum > maxValue) {
+            return;
         }
-
+        tempRecipe.addAll(whiteList);
+        writeRecipe(tempRecipe);
         updateProgress();
     }
 
@@ -154,7 +150,6 @@ public class RecipeService {
     }
 
     private void write(String text) throws IOException {
-        //noinspection StringConcatenationInsideStringBufferAppend
-        fileWriter.append(text + "\n");
+        fileWriter.append(text).append("\n");
     }
 }
